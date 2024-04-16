@@ -70,6 +70,16 @@
 
 #endif /* XAIE_DEBUG */
 
+#if  defined(__microblaze__)
+#define PRINT xil_printf
+#define UINTPTR (uintptr_t)
+#define U32_FORMAT "%ld"
+#else
+#define PRINT printf
+#define UINTPTR
+#define U32_FORMAT "%d"
+#endif
+
 /* Compute offset of field within a structure */
 #define XAIE_OFFSET_OF(structure, member) \
 	((uintptr_t)&(((structure *)0)->member))

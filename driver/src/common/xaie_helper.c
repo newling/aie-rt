@@ -343,7 +343,7 @@ void XAie_Log(FILE *Fd, const char *prefix, const char *func, u32 line,
 {
 	va_list ArgPtr;
 	va_start(ArgPtr, Format);
-	fprintf(Fd, "%s %s():%d: ", prefix, func, line);
+	fprintf(Fd, "%s %s():"U32_FORMAT": ", prefix, func, line);
 	vfprintf(Fd, Format, ArgPtr);
 	va_end(ArgPtr);
 }
@@ -555,7 +555,7 @@ void BuffHexDump(char* buff,u32 size) {
 
 static int TxnCmdDump(XAie_TxnCmd* cmd) {
 	XAIE_DBG("TxnCmdDump Called for %d and size %d\n",cmd->Opcode,cmd->Size);
-	BuffHexDump((char *)(cmd->DataPtr),cmd->Size);
+	BuffHexDump((char *)(uintptr_t)(cmd->DataPtr),cmd->Size);
 	return 0;
 }
 
@@ -697,7 +697,7 @@ static AieRC _XAie_ExecuteCmd(XAie_DevInst *DevInst, XAie_TxnCmd *Cmd,
 			}
 
 			if((Flags & XAIE_TXN_INST_EXPORTED_MASK) == 0U) {
-				free((void *)Cmd->DataPtr);
+				free((void *)(uintptr_t)Cmd->DataPtr);
 			}
 			break;
 		case XAIE_IO_BLOCKSET:
@@ -886,8 +886,8 @@ XAie_TxnInst* _XAie_TxnExport(XAie_DevInst *DevInst)
 			}
 
 			Cmd->DataPtr = (u64)(uintptr_t)memcpy(
-					(void *)Cmd->DataPtr,
-					(void *)TmpCmd->DataPtr,
+					(void *)(uintptr_t)Cmd->DataPtr,
+					(void *)(uintptr_t)TmpCmd->DataPtr,
 					sizeof(u32) * TmpCmd->Size);
 		}
 	}
@@ -982,7 +982,7 @@ static inline void _XAie_AppendBlockWrite32(XAie_DevInst *DevInst,
 	Hdr->OpHdr.Row = _XAie_GetRowfromRegOff(DevInst,Cmd->RegOff);
 	Hdr->OpHdr.Op = (u8)XAIE_IO_BLOCKWRITE;
 
-	memcpy((void *)Payload, (void *)Cmd->DataPtr,
+	memcpy((void *)Payload, (void *)(uintptr_t)Cmd->DataPtr,
 			Cmd->Size * sizeof(u32));
 }
 
@@ -1013,7 +1013,7 @@ static inline void _XAie_AppendCustomOp(XAie_TxnCmd *Cmd, u8 *TxnPtr)
 	Hdr->OpHdr.Op = (u8)Cmd->Opcode;
 
 	for (u32 i = 0U; i < Cmd->Size; ++i, ++Payload) {
-		*(Payload) = *((u8*)Cmd->DataPtr + i);
+		*(Payload) = *((u8*)(uintptr_t)Cmd->DataPtr + i);
 	}
 }
 
@@ -1710,7 +1710,7 @@ AieRC _XAie_ClearTransaction(XAie_DevInst* DevInst)
 		XAie_TxnCmd *Cmd = &Inst->CmdBuf[i];
 		if(Cmd->Opcode == XAIE_IO_BLOCKWRITE || Cmd->Opcode >= XAIE_IO_CUSTOM_OP_BEGIN) {
 			XAIE_DBG("free DataPtr %p\n", Cmd->DataPtr);
-			free((void *)Cmd->DataPtr);
+			free((void *)(uintptr_t)Cmd->DataPtr);
 		}
 	}
 
@@ -1816,7 +1816,7 @@ AieRC XAie_AddCustomTxnOp(XAie_DevInst *DevInst, u8 OpNumber, void* Args, size_t
 		TxnInst->CmdBuf[TxnInst->NumCmds].Size = (u32)size;
 
 		memcpy(tmpBuff, Args, size);
-		TxnInst->CmdBuf[TxnInst->NumCmds].DataPtr = (u64)tmpBuff;
+		TxnInst->CmdBuf[TxnInst->NumCmds].DataPtr = (u64)(uintptr_t)tmpBuff;
 
 		if (TX_DUMP_ENABLE) {
 			TxnCmdDump(&TxnInst->CmdBuf[TxnInst->NumCmds]);

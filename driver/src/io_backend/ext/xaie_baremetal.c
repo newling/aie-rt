@@ -310,7 +310,7 @@ static XAie_MemInst* XAie_BaremetalMemAllocate(XAie_DevInst *DevInst, u64 Size,
 		free(MemInst);
 		return NULL;
 	}
-	MemInst->DevAddr = (u64)MemInst->VAddr;
+	MemInst->DevAddr = (u64)(uintptr_t)MemInst->VAddr;
 	MemInst->Size = Size;
 	MemInst->DevInst = DevInst;
 
