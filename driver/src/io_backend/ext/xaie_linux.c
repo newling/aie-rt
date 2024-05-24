@@ -49,6 +49,7 @@
 
 /***************************** Macro Definitions *****************************/
 #define XAIE_128BIT_ALIGN_MASK 0xFF
+#define XAIE_DEVICE_FILE "/dev/aie0"
 
 #ifdef __AIELINUX__
 
@@ -193,6 +194,85 @@ static AieRC XAie_LinuxIO_Finish(void *IOInst)
 /*****************************************************************************/
 /**
 *
+* This function will get the partition details from kernel and will appends the
+* partition details to list.
+*
+* @param	DevInst: Global AIE device instance pointer.
+*
+* @return	XAIE_OK on success, error code on failure.
+*
+*******************************************************************************/
+static AieRC XAie_LinuxIO_GetPartitionList(XAie_DevInst *DevInst)
+{
+	AieRC RC;
+	int AieDevFd, cnt = 0;
+	struct aie_part_fd_list aiepart_list;
+	struct aie_partition_query PartQuery;
+
+	AieDevFd = open(XAIE_DEVICE_FILE, O_RDWR);
+	if (AieDevFd < 0) {
+		XAIE_ERROR("Failed to open aie device in GetPartitionFd %s, \
+				%d: %s\n","/dev/aie0", errno, strerror(errno));
+		return XAIE_ERR;
+	}
+
+	PartQuery.partitions = NULL;
+	RC = ioctl(AieDevFd, AIE_ENQUIRE_PART_IOCTL, &PartQuery);
+	if (RC < 0) {
+		XAIE_ERROR("Failed to get partitions count %d: %s\n",
+				errno, strerror(errno));
+		return XAIE_ERR;
+	}
+
+	aiepart_list.num_entries = PartQuery.partition_cnt;
+	if (aiepart_list.num_entries == 0) {
+		XAIE_ERROR("Partitions was not created, create Partition first\n");
+		return XAIE_ERR;
+	}
+
+	aiepart_list.list = (struct aie_part_fd *) malloc(
+			aiepart_list.num_entries * sizeof(struct aie_part_fd));
+	if (aiepart_list.list == NULL) {
+		XAIE_ERROR("failed to allocate memory for partition list\n");
+		return XAIE_ERR;
+	}
+
+	RC = ioctl(AieDevFd, AIE_GET_PARTITION_FD_LIST_IOCTL, &aiepart_list);
+	if (RC < 0) {
+		XAIE_ERROR("Failed to get partition list %d: %s\n",
+				errno, strerror(errno));
+		return XAIE_ERR;
+	}
+
+	for (cnt = 0; cnt < aiepart_list.num_entries; cnt++) {
+		XAie_PartitionList *PartInst = (XAie_PartitionList *) malloc(
+				sizeof(XAie_PartitionList));
+		if (PartInst == NULL) {
+			XAIE_ERROR("failed to allocate memory for partition list\n");
+			return XAIE_ERR;
+
+		}
+
+		PartInst->ColRange.Start =
+			aiepart_list.list[cnt].col_args.start_col;
+		PartInst->ColRange.Num =
+			aiepart_list.list[cnt].col_args.num_cols;
+		PartInst->PartitionId = aiepart_list.list[cnt].partition_id;
+		PartInst->Uid = aiepart_list.list[cnt].uid;
+		PartInst->PartitionFd = aiepart_list.list[cnt].fd;
+
+		_XAie_AppendPartitionToList(DevInst, PartInst);
+	}
+
+	close(AieDevFd);
+	free(aiepart_list.list);
+
+	return XAIE_OK;
+}
+
+/*****************************************************************************/
+/**
+*
 * This function requests for an available partition from kernel.
 *
 * @param	DevInst: Device Instance
@@ -239,6 +319,7 @@ static AieRC _XAie_LinuxIO_GetPartition(XAie_DevInst *DevInst,
 	IOInst->NumCols = DevInst->NumCols;
 	IOInst->NumRows = DevInst->NumRows;
 	Size = IOInst->NumCols << IOInst->ColShift;
+
 	/* mmap register space as read only */
 	IOInst->RegMap.VAddr = mmap(NULL, Size, PROT_READ, MAP_SHARED,
 			IOInst->PartitionFd, 0);
@@ -391,7 +472,7 @@ static AieRC XAie_LinuxIO_Init(XAie_DevInst *DevInst)
 		return XAIE_ERR;
 	}
 
-	Fd = open("/dev/aie0", O_RDWR);
+	Fd = open(XAIE_DEVICE_FILE, O_RDWR);
 	if(Fd < 0) {
 		XAIE_ERROR("Failed to open aie device %s, %d: %s\n",
 			"/dev/aie0", errno, strerror(errno));
@@ -1789,6 +1870,11 @@ static int XAie_LinuxGetPartFd(void *IOInst)
 	return 0;
 }
 
+static AieRC XAie_LinuxIO_GetPartitionList(XAie_DevInst *DevInst)
+{
+        (void)DevInst;
+        return 0;
+}
 
 static AieRC XAie_LinuxSubmitTxn(void *IOInst, XAie_TxnInst *TxnInst)
 {
@@ -1868,7 +1954,8 @@ const XAie_Backend LinuxBackend =
 	.Ops.GetTid = XAie_LinuxGetTid,
 	.Ops.GetPartFd = XAie_LinuxGetPartFd,
 	.Ops.SubmitTxn = XAie_LinuxSubmitTxn,
-	.Ops.GetShimDmaBdConfig = XAie_LinuxIO_GetShimDmaBdConfig
+	.Ops.GetShimDmaBdConfig = XAie_LinuxIO_GetShimDmaBdConfig,
+	.Ops.GetPartitionList = XAie_LinuxIO_GetPartitionList
 };
 
 /** @} */

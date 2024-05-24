@@ -404,6 +404,77 @@ AieRC _XAie_PartitionIsolationInitialize(XAie_DevInst *DevInst)
 
 /*****************************************************************************/
 /**
+ *
+ * This is the API to setup the Partition List, the Partition information of
+* all partitions and will append to a list.
+*
+* @param	DevInst: Global AIE device instance pointer.
+*
+* @return	XAIE_OK on success and error code on failure.
+*
+******************************************************************************/
+AieRC XAie_GetPartitionFdList(XAie_DevInst *DevInst)
+{
+	AieRC RC;
+
+	RC = XAie_GetPartitionList(DevInst);
+	if (RC != XAIE_OK) {
+		XAIE_ERROR("Failed to get partition List\n");
+		return XAIE_ERR;
+	}
+
+	RC = _XAie_PrintPartitionList(DevInst);
+	if (RC != XAIE_OK) {
+		XAIE_ERROR("Failed to print partition list\n");
+		return XAIE_ERR;
+	}
+
+	return XAIE_OK;
+}
+
+/*****************************************************************************/
+/**
+* This is the API to destroy the partition list, it is going to destroy all the
+* partitions information which are present in the list.
+*
+* @param	DevInst: Global AIE device instance pointer.
+*
+* @return	XAIE_OK on success and error code on failure.
+*
+******************************************************************************/
+AieRC XAie_DestroyPartitionList(XAie_DevInst *DevInst)
+{
+	AieRC RC;
+
+	RC = _XAie_DestroyPartitionFdList(DevInst);
+	if (RC != XAIE_OK) {
+		XAIE_ERROR("Failed to destroy the partition List\n");
+		return XAIE_ERR;
+	}
+
+	return XAIE_OK;
+}
+
+/*****************************************************************************/
+/**
+*
+** This is the API to get a particular partition from the partition list based
+* on the partition id given by the user, it is going to return the partition
+* fd
+
+**
+* @param	DevInst: Global AIE device instance pointer.
+*
+* @return	Partition Fd on  success and negetive values on failure.
+*
+******************************************************************************/
+int XAie_SelectPartitionFromList(XAie_DevInst *DevInst, u32 PartitionId)
+{
+	return  _XAie_MatchPartitionList(DevInst, PartitionId);
+}
+
+/*****************************************************************************/
+/**
 *
 * This is the API to finish the AI enigne partition. It will release
 * the occupied AI engine resources.

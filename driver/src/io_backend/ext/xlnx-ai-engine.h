@@ -219,7 +219,6 @@ struct aie_partition_query {
 	struct aie_range_args *partitions;
 	__u32 partition_cnt;
 };
-
 #define AIE_PART_ID_START_COL_SHIFT	0U
 #define AIE_PART_ID_NUM_COLS_SHIFT	8U
 #define AIE_PART_ID_START_COL_MASK	(0xFFU << AIE_PART_ID_START_COL_SHIFT)
@@ -321,6 +320,30 @@ struct aie_column_args{
 	__u32 start_col;
 	__u32 num_cols;
 	__u8 enable;
+};
+
+/**
+ * struct aie_part_fd - AIE partition args
+ * @col_args : AIE columns args
+ * @partition_id : partition id of the partition.
+ * @uid : uid of the partition
+ * @fd : partition fd
+ * */
+struct aie_part_fd {
+        struct aie_column_args col_args;
+        __u32 partition_id;
+        __u32 uid;
+        int fd;
+};
+
+/**
+ * struct aie_part_fd_list - AIE partitions list
+ * @list : list of partitions
+ * @num_entries : partiions count
+ * */
+struct aie_part_fd_list {
+    struct aie_part_fd *list;
+    int num_entries;
 };
 
 /**
@@ -458,6 +481,8 @@ struct aie_rsc_user_stat_array {
 					      struct aie_partition_query)
 #define AIE_REQUEST_PART_IOCTL		_IOR(AIE_IOCTL_BASE, 0x2, \
 					     struct aie_partition_req)
+#define AIE_GET_PARTITION_FD_LIST_IOCTL      _IOWR(AIE_IOCTL_BASE, 0x1d, \
+                                             struct aie_part_fd_list)
 
 /* AI engine partition IOCTL operations */
 /**

@@ -145,6 +145,7 @@ typedef struct {
 	XAie_DeviceOps *DevOps; /* Device level operations */
 	XAie_PartitionProp PartProp; /* Partition property */
 	XAie_List TxnList; /* Head of the list of txn buffers */
+	XAie_List PartitionList;
 } XAie_DevInst;
 
 /* typedef to capture transaction buffer data */
@@ -204,6 +205,15 @@ typedef struct {
 	u8 Start;
 	u8 Num;
 } XAie_Range;
+
+/* This typedef captures partition information available in the kernel */
+typedef struct {
+        XAie_Range ColRange;
+        u32 PartitionId;
+        u32 Uid;
+        int PartitionFd;
+        XAie_List Node;
+}XAie_PartitionList;
 
 /*
  * This typedef contains the attributes for an AIE partition initialization
@@ -628,6 +638,10 @@ AieRC XAie_IsDeviceCheckerboard(XAie_DevInst *DevInst, u8 *IsCheckerBoard);
 AieRC XAie_UpdateNpiAddr(XAie_DevInst *DevInst, u64 NpiAddr);
 AieRC XAie_MapIrqIdToCols(u8 IrqId, XAie_Range *Range);
 AieRC XAie_PerfUtilization(XAie_DevInst *DevInst, XAie_PerfInst *PerfInst);
+AieRC XAie_EnquirePartitions(XAie_DevInst *DevInst);
+int XAie_SelectPartitionFromList(XAie_DevInst *DevInst, u32 PartitionId);
+AieRC XAie_DestroyPartitionList(XAie_DevInst *DevInst);
+AieRC XAie_GetPartitionFdList(XAie_DevInst *DevInst);
 /*****************************************************************************/
 /*
 *

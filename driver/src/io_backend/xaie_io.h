@@ -151,6 +151,7 @@ typedef struct XAie_BackendOps {
 	int (*GetPartFd)(void *IOInst);
 	AieRC (*SubmitTxn)(void *IOInst, XAie_TxnInst *TxnInst);
 	void* (*GetShimDmaBdConfig)(XAie_ShimDmaBdArgs *Args);
+	AieRC (*GetPartitionList)(XAie_DevInst *DevInst);
 } XAie_BackendOps;
 
 /* Typedef to capture all backend information */

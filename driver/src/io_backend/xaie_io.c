@@ -108,6 +108,35 @@ static const XAie_Backend *IOBackend[XAIE_IO_BACKEND_MAX] =
 /*****************************************************************************/
 /**
 *
+* This is the api used to get the partition list from the kernel.
+*
+* @param        DevInst - Device instance pointer.
+*
+* @return       XAIE_OK on success and error code on failure.
+*
+* @note         Internal Only.
+*
+******************************************************************************/
+AieRC XAie_GetPartitionList(XAie_DevInst *DevInst)
+{
+        AieRC RC;
+        const XAie_Backend *Backend = IOBackend[XAIE_DEFAULT_BACKEND];
+
+        RC = Backend->Ops.GetPartitionList(DevInst);
+        if(RC != XAIE_OK) {
+                return RC;
+        }
+
+        DevInst->Backend = Backend;
+
+        XAIE_DBG("Initialized with backend %d\n", Backend->Type);
+
+        return XAIE_OK;
+}
+
+/*****************************************************************************/
+/**
+*
 * This is the api initialize global IO instance. The default IO backend is
 * libmetal.
 *

@@ -234,5 +234,10 @@ u32 _XAie_GetNumRows(XAie_DevInst *DevInst, u8 TileType);
 u32 _XAie_GetStartRow(XAie_DevInst *DevInst, u8 TileType);
 void _XAie_FreeTxnPtr(void *Ptr);
 AieRC XAie_StatusDump(XAie_DevInst *DevInst, XAie_ColStatus *Status);
+void _XAie_AppendPartitionToList(XAie_DevInst *DevInst, XAie_PartitionList *PartInst);
+AieRC _XAie_DestroyPartitionFdList(XAie_DevInst *DevInst);
+AieRC XAie_GetPartitionList(XAie_DevInst *DevInst);
+AieRC _XAie_PrintPartitionList(XAie_DevInst *DevInst);
+int _XAie_MatchPartitionList(XAie_DevInst *DevInst, u32 PartitionId);
 #endif		/* end of protection macro */
 /** @} */

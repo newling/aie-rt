@@ -49,6 +49,7 @@
 #define XAIE_TXN_AUTO_FLUSH_MASK XAIE_TRANSACTION_ENABLE_AUTO_FLUSH
 
 #define TX_DUMP_ENABLE 0
+#define XAIE_INVALID_PARTITIONFD -1
 /************************** Variable Definitions *****************************/
 const u8 TransactionHeaderVersion_Major = 0;
 const u8 TransactionHeaderVersion_Minor = 1;
@@ -450,6 +451,145 @@ void _XAie_ClrBitInBitmap(u32 *Bitmap, u32 StartBit, u32 NumBit)
 		Bitmap[i / (sizeof(Bitmap[0]) * 8U)] &=
 			~(u32)((1U << (i % (sizeof(Bitmap[0]) * 8U))));
 	}
+}
+
+/*****************************************************************************/
+/**
+* This API will appends the partition information to the partition list.
+*
+* @param	DevInst: Global AIE Device instance pointer.
+*
+* @param	PartInst: pointer having the partition information, which
+*               aquires from kernel
+*
+* @return	none
+*
+******************************************************************************/
+void _XAie_AppendPartitionToList(XAie_DevInst *DevInst,
+		XAie_PartitionList *PartInst)
+{
+	XAie_List *Node = &DevInst->PartitionList;
+
+	while(Node->Next != NULL) {
+		Node = Node->Next;
+	}
+
+	Node->Next = &PartInst->Node;
+	PartInst->Node.Next = NULL;
+
+}
+
+/*****************************************************************************/
+/**
+*
+* This function will match the partition from list  and update StartCol & NumCols.
+*
+* @param	DevInst: Global AIE Device instance pointer.
+*
+* @param	PartitionId: PartitionId given by user.
+*
+* @return	 Partition Fd  on success, negetive values on failure.
+*
+*******************************************************************************/
+int _XAie_MatchPartitionList(XAie_DevInst *DevInst, u32 PartitionId)
+{
+	XAie_List *NodePtr;
+	XAie_PartitionList *ListNode;
+
+	if (DevInst->PartitionList.Next == NULL) {
+		XAIE_ERROR("Partition list is empty \n");
+		return XAIE_INVALID_PARTITIONFD;
+	}
+
+	NodePtr = (XAie_List *)&DevInst->PartitionList.Next->Next;
+
+	while (NodePtr != NULL) {
+		ListNode = XAIE_CONTAINER_OF(NodePtr, XAie_PartitionList, Node);
+
+		if (PartitionId == ListNode->PartitionId) {
+			DevInst->StartCol = ListNode->ColRange.Start;
+			DevInst->NumCols = ListNode->ColRange.Num;
+			return ListNode->PartitionFd;
+		}
+
+		NodePtr = NodePtr->Next;
+	}
+
+	XAIE_ERROR("Failed to match the partition id from the list PartitionId: %u \n", PartitionId);
+
+	return XAIE_INVALID_PARTITIONFD;
+}
+
+/*****************************************************************************/
+/**
+*
+* This is the function to Destory the partitions entry in the list and make it
+* free.
+*
+* @param	DevInst: Global AIE Device instance pointer.
+*
+* @return	XAIE_OK on success, error code on failure.
+*
+*******************************************************************************/
+AieRC _XAie_DestroyPartitionFdList(XAie_DevInst *DevInst)
+{
+	XAie_List *NodePtr;
+	XAie_PartitionList *ListNode, *DeleteNode;
+
+	if (DevInst->PartitionList.Next == NULL) {
+		XAIE_ERROR("Partition list is empty\n");
+		return XAIE_ERR;
+	}
+
+	NodePtr = (XAie_List *)&DevInst->PartitionList.Next->Next;
+
+	while (NodePtr != NULL) {
+		ListNode = XAIE_CONTAINER_OF(NodePtr, XAie_PartitionList, Node);
+
+		DeleteNode = ListNode;
+		NodePtr = NodePtr->Next;
+
+		free(DeleteNode);
+	}
+
+	DevInst->PartitionList.Next = NULL;
+        return XAIE_OK;
+}
+
+/*****************************************************************************/
+/**
+*
+* This function will print the partitions and it's information from the list.
+*
+* @param	DevInst: Global AIE Device instance pointer.
+*
+* @return	XAIE_OK on success, error code on failure.
+*
+*******************************************************************************/
+AieRC _XAie_PrintPartitionList(XAie_DevInst *DevInst)
+{
+        XAie_List *NodePtr;
+        XAie_PartitionList *ListNode;
+
+	if (DevInst->PartitionList.Next == NULL) {
+		XAIE_ERROR("Partition list is empty \n");
+		return XAIE_ERR;
+	}
+
+	NodePtr = (XAie_List *)&DevInst->PartitionList.Next->Next;
+
+	while (NodePtr != NULL) {
+		ListNode = XAIE_CONTAINER_OF(NodePtr, XAie_PartitionList, Node);
+
+		printf("Partition ID:   %d\n",ListNode->PartitionId);
+		printf("\tStart Col:    %d \n", ListNode->ColRange.Start);
+		printf("\tNum Cols:     %d\n", ListNode->ColRange.Num);
+		printf("\tPartition Fd: %d\n", ListNode->PartitionFd);
+
+		NodePtr = NodePtr->Next;
+        }
+
+        return XAIE_OK;
 }
 
 /*****************************************************************************/
