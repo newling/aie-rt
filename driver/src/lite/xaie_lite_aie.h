@@ -108,19 +108,19 @@ static inline void _XAie_LSetPartIsolationAfterRst(XAie_DevInst *DevInst, u8 Iso
 		u32 RegVal = 0;
 
 		if (IsolationFlags == XAIE_INIT_ISOLATION) {
+			if(C > 0 && C < (u8)(DevInst->NumCols - 1))
+                                continue;
 			if(C == 0) {
-				RegVal = XAIE_TILE_CNTR_ISOLATE_WEST_MASK;
-			} else if(C == (u8)(DevInst->NumCols - 1)) {
-				RegVal = XAIE_TILE_CNTR_ISOLATE_EAST_MASK;
-			} else {
-				/* No isolation for tiles by default for AIE */
-				continue;
+				RegVal |= XAIE_TILE_CNTR_ISOLATE_WEST_MASK;
+			}
+			if(C == (u8)(DevInst->NumCols - 1)) {
+				RegVal |= XAIE_TILE_CNTR_ISOLATE_EAST_MASK;
 			}
 		}
-
 		if(C == 0U && (IsolationFlags & XAIE_INIT_WEST_ISOLATION)) {
 			RegVal |= XAIE_ISOLATE_WEST_MASK;
-		} else if(C == (u8)(DevInst->NumCols - 1U) && (IsolationFlags & XAIE_INIT_EAST_ISOLATION)) {
+		}
+		if(C == (u8)(DevInst->NumCols - 1U) && (IsolationFlags & XAIE_INIT_EAST_ISOLATION)) {
 			RegVal |= XAIE_ISOLATE_EAST_MASK;
 		}
 

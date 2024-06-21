@@ -281,19 +281,18 @@ AieRC _XAie_SetPartIsolationAfterRst(XAie_DevInst *DevInst, u8 IsolationFlags)
 		u8 Dir = 0;
 
 		if(IsolationFlags == XAIE_INIT_ISOLATION) {
-			if(C == 0U) {
-				Dir = XAIE_ISOLATE_WEST_MASK;
-			} else if(C == (u8)(DevInst->NumCols - 1U)) {
-				Dir = XAIE_ISOLATE_EAST_MASK;
-			} else {
-				/* No isolation for tiles by default for AIE */
+			if(C > 0 && C < (u8)(DevInst->NumCols - 1U))
 				continue;
-			}
+			if(C == 0U)
+				Dir |= XAIE_ISOLATE_WEST_MASK;
+			if(C == (u8)(DevInst->NumCols - 1U))
+				Dir |= XAIE_ISOLATE_EAST_MASK;
 		}
 
 		if(C == 0U && (IsolationFlags & XAIE_INIT_WEST_ISOLATION)) {
 			Dir |= XAIE_ISOLATE_WEST_MASK;
-		} else if(C == (u8)(DevInst->NumCols - 1U) && (IsolationFlags & XAIE_INIT_EAST_ISOLATION)) {
+		}
+		if(C == (u8)(DevInst->NumCols - 1U) && (IsolationFlags & XAIE_INIT_EAST_ISOLATION)) {
 			Dir |= XAIE_ISOLATE_EAST_MASK;
 		}
 
