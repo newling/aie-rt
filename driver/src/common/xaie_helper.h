@@ -197,17 +197,8 @@ void XAie_Log(FILE *Fd, const char *prefix, const char *func, u32 line,
 u8 _XAie_GetTileTypefromLoc(XAie_DevInst *DevInst, XAie_LocType Loc);
 AieRC _XAie_CheckModule(XAie_DevInst *DevInst, XAie_LocType Loc,
 		XAie_ModuleType Module);
-AieRC _XAie_GetSlaveIdx(const XAie_StrmMod *StrmMod, StrmSwPortType Slave,
-		u8 PortNum, u8 *SlaveIdx);
-AieRC _XAie_GetMstrIdx(const XAie_StrmMod *StrmMod, StrmSwPortType Master,
-		u8 PortNum, u8 *MasterIdx);
-u32 _XAie_GetFatalGroupErrors(XAie_DevInst *DevInst, XAie_LocType Loc,
-		XAie_ModuleType Module);
-u32 _XAie_GetTileBitPosFromLoc(XAie_DevInst *DevInst, XAie_LocType Loc);
 AieRC _XAie_GetUngatedLocsInPartition(XAie_DevInst *DevInst, u32 *NumTiles,
 		XAie_LocType *Locs);
-void _XAie_SetBitInBitmap(u32 *Bitmap, u32 StartSetBit, u32 NumSetBit);
-void _XAie_ClrBitInBitmap(u32 *Bitmap, u32 StartSetBit, u32 NumSetBit);
 AieRC XAie_Write32(XAie_DevInst *DevInst, u64 RegOff, u32 Value);
 AieRC XAie_Read32(XAie_DevInst *DevInst, u64 RegOff, u32 *Data);
 AieRC XAie_MaskWrite32(XAie_DevInst *DevInst, u64 RegOff, u32 Mask, u32 Value);
@@ -222,22 +213,9 @@ void BuffHexDump(char* buff,u32 size);
 int XAie_RequestCustomTxnOp(XAie_DevInst *DevInst);
 AieRC XAie_AddCustomTxnOp(XAie_DevInst *DevInst, u8 OpNumber, void* Args, size_t size);
 AieRC XAie_RunOp(XAie_DevInst *DevInst, XAie_BackendOpCode Op, void *Arg);
-AieRC _XAie_Txn_Start(XAie_DevInst *DevInst, u32 Flags);
-AieRC _XAie_Txn_Submit(XAie_DevInst *DevInst, XAie_TxnInst *TxnInst);
-XAie_TxnInst* _XAie_TxnExport(XAie_DevInst *DevInst);
-u8* _XAie_TxnExportSerialized(XAie_DevInst *DevInst, u8 NumConsumers,
-		u32 Flags);
-AieRC _XAie_ClearTransaction(XAie_DevInst* DevInst);
-AieRC _XAie_TxnFree(XAie_TxnInst *Inst);
-void _XAie_TxnResourceCleanup(XAie_DevInst *DevInst);
 u32 _XAie_GetNumRows(XAie_DevInst *DevInst, u8 TileType);
 u32 _XAie_GetStartRow(XAie_DevInst *DevInst, u8 TileType);
-void _XAie_FreeTxnPtr(void *Ptr);
 AieRC XAie_StatusDump(XAie_DevInst *DevInst, XAie_ColStatus *Status);
-void _XAie_AppendPartitionToList(XAie_DevInst *DevInst, XAie_PartitionList *PartInst);
-AieRC _XAie_DestroyPartitionFdList(XAie_DevInst *DevInst);
 AieRC XAie_GetPartitionList(XAie_DevInst *DevInst);
-AieRC _XAie_PrintPartitionList(XAie_DevInst *DevInst);
-int _XAie_MatchPartitionList(XAie_DevInst *DevInst, u32 PartitionId);
 #endif		/* end of protection macro */
 /** @} */
