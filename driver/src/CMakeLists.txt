@@ -11,6 +11,7 @@ include_directories(${CMAKE_BINARY_DIR}/include/xaiengine)
 #common
 collect (PROJECT_LIB_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/common/xaie_helper.c")
 collect (PROJECT_LIB_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/common/xaie_helper.h")
+collect (PROJECT_LIB_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/common/xaie_helper_internal.h")
 collect (PROJECT_LIB_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/common/xaie_txn.h")
 
 #core
