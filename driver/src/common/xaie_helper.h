@@ -72,11 +72,11 @@
 
 #if  defined(__microblaze__)
 #define PRINT xil_printf
-#define UINTPTR (uintptr_t)
+#define UINTPTR_T (uintptr_t)
 #define U32_FORMAT "%ld"
 #else
 #define PRINT printf
-#define UINTPTR
+#define UINTPTR_T
 #define U32_FORMAT "%d"
 #endif
 
