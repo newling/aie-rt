@@ -40,8 +40,8 @@
 
 #ifdef XAIE_FEATURE_ELF_ENABLE
 /************************** Constant Definitions *****************************/
-#define XAIESIM_CMDIO_CMD_SETSTACK       0U
-#define XAIESIM_CMDIO_CMD_LOADSYM        1U
+#define XAIESIM_CMDIO_CMD_SETSTACK	0U
+#define XAIESIM_CMDIO_CMD_LOADSYM	1U
 
 /************************** Function Definitions *****************************/
 /*****************************************************************************/
@@ -559,6 +559,8 @@ static AieRC XAieSim_GetStackRange(const char *MapPtr,
 *		3. XAIE_LOAD_ELF_DATA (loads initialized symbols)
 *		4. XAIE_LOAD_ELF_ALL (loads all sections)
 *		Above flags can be passed individually or ORed together.
+* @param	LoadSym: Load symbols from .map file. This argument is valid
+* 		when __AIESIM__ is defined.
 *
 * @return	XAIE_OK on success and error code for failure.
 *
@@ -568,97 +570,13 @@ static AieRC XAieSim_GetStackRange(const char *MapPtr,
 *
 *******************************************************************************/
 AieRC XAie_LoadElfPartial(XAie_DevInst *DevInst, XAie_LocType Loc,
-		const char* ElfPtr, u8 Sections)
+		const char* ElfPtr, u8 Sections, u8 LoadSym)
 {
 	FILE *Fd;
 	int Ret;
 	unsigned char *ElfMem;
 	u8 TileType;
 	u64 ElfSz;
-	AieRC RC;
-
-	if((DevInst == XAIE_NULL) ||
-		(DevInst->IsReady != XAIE_COMPONENT_IS_READY)) {
-		XAIE_ERROR("Invalid device instance\n");
-		return XAIE_INVALID_ARGS;
-	}
-
-	TileType = DevInst->DevOps->GetTTypefromLoc(DevInst, Loc);
-	if(TileType != XAIEGBL_TILE_TYPE_AIETILE) {
-		XAIE_ERROR("Invalid tile type\n");
-		return XAIE_INVALID_TILE;
-	}
-
-	if (ElfPtr == XAIE_NULL) {
-		XAIE_ERROR("Invalid ElfPtr\n");
-		return XAIE_INVALID_ARGS;
-	}
-
-	Fd = fopen(ElfPtr, "r");
-	if(Fd == XAIE_NULL) {
-		XAIE_ERROR("Unable to open elf file, %d: %s\n",
-			errno, strerror(errno));
-		return XAIE_INVALID_ELF;
-	}
-
-	/* Get the file size of the elf */
-	Ret = fseek(Fd, 0L, SEEK_END);
-	if(Ret != 0) {
-		XAIE_ERROR("Failed to get end of file, %d: %s\n",
-			errno, strerror(errno));
-		fclose(Fd);
-		return XAIE_INVALID_ELF;
-	}
-
-	ElfSz = (u64)ftell(Fd);
-	rewind(Fd);
-	XAIE_DBG("Elf size is %ld bytes\n", ElfSz);
-
-	/* Read entire elf file into memory */
-	ElfMem = (unsigned char*) malloc(ElfSz);
-	if(ElfMem == NULL) {
-		fclose(Fd);
-		XAIE_ERROR("Memory allocation failed\n");
-		return XAIE_ERR;
-	}
-
-	Ret = (int)fread((void*)ElfMem, ElfSz, 1U, Fd);
-	if(Ret == 0) {
-		fclose(Fd);
-		free(ElfMem);
-		XAIE_ERROR("Failed to read Elf into memory\n");
-		return XAIE_ERR;
-	}
-
-	fclose(Fd);
-
-	RC = _XAie_LoadElfFromMem(DevInst, Loc, ElfMem, Sections);
-	free(ElfMem);
-
-	return RC;
-}
-
-/*****************************************************************************/
-/**
-*
-* This function loads the elf from file to the AIE Cores. The function writes
-* 0 for the unitialized data section.
-*
-* @param	DevInst: Device Instance.
-* @param	Loc: Location of AIE Tile.
-* @param	ElfPtr: Path to the elf file.
-* @param	LoadSym: Load symbols from .map file. This argument is valid
-*		when __AIESIM__ is defined.
-*
-* @return	XAIE_OK on success and error code for failure.
-*
-* @note		None.
-*
-*******************************************************************************/
-AieRC XAie_LoadElf(XAie_DevInst *DevInst, XAie_LocType Loc, const char *ElfPtr,
-		u8 LoadSym)
-{
-	u8 TileType;
 	AieRC RC;
 
 	if((DevInst == XAIE_NULL) ||
@@ -726,9 +644,92 @@ AieRC XAie_LoadElf(XAie_DevInst *DevInst, XAie_LocType Loc, const char *ElfPtr,
 	}
 #endif
 	(void)LoadSym;
-	(void)RC;
 
-	return XAie_LoadElfPartial(DevInst, Loc, ElfPtr, XAIE_LOAD_ELF_ALL);
+	Fd = fopen(ElfPtr, "r");
+	if(Fd == XAIE_NULL) {
+		XAIE_ERROR("Unable to open elf file, %d: %s\n",
+				errno, strerror(errno));
+		return XAIE_INVALID_ELF;
+	}
+
+	/* Get the file size of the elf */
+	Ret = fseek(Fd, 0L, SEEK_END);
+	if(Ret != 0) {
+		XAIE_ERROR("Failed to get end of file, %d: %s\n",
+				errno, strerror(errno));
+		fclose(Fd);
+		return XAIE_INVALID_ELF;
+	}
+
+	ElfSz = (u64)ftell(Fd);
+	rewind(Fd);
+	XAIE_DBG("Elf size is %ld bytes\n", ElfSz);
+
+	/* Read entire elf file into memory */
+	ElfMem = (unsigned char*) malloc(ElfSz);
+	if(ElfMem == NULL) {
+		fclose(Fd);
+		XAIE_ERROR("Memory allocation failed\n");
+		return XAIE_ERR;
+	}
+
+	Ret = (int)fread((void*)ElfMem, ElfSz, 1U, Fd);
+	if(Ret == 0) {
+		fclose(Fd);
+		free(ElfMem);
+		XAIE_ERROR("Failed to read Elf into memory\n");
+		return XAIE_ERR;
+	}
+
+	fclose(Fd);
+
+	RC = _XAie_LoadElfFromMem(DevInst, Loc, ElfMem, Sections);
+	free(ElfMem);
+
+	return RC;
+}
+
+/*****************************************************************************/
+/**
+*
+* This function loads the elf from file to the AIE Cores. The function writes
+* 0 for the unitialized data section.
+*
+* @param	DevInst: Device Instance.
+* @param	Loc: Location of AIE Tile.
+* @param	ElfPtr: Path to the elf file.
+* @param	LoadSym: Load symbols from .map file. This argument is valid
+*		when __AIESIM__ is defined.
+*
+* @return	XAIE_OK on success and error code for failure.
+*
+* @note		None.
+*
+*******************************************************************************/
+AieRC XAie_LoadElf(XAie_DevInst *DevInst, XAie_LocType Loc, const char *ElfPtr,
+		u8 LoadSym)
+{
+	u8 TileType;
+
+	if((DevInst == XAIE_NULL) ||
+		(DevInst->IsReady != XAIE_COMPONENT_IS_READY)) {
+		XAIE_ERROR("Invalid device instance\n");
+		return XAIE_INVALID_ARGS;
+	}
+
+	TileType = DevInst->DevOps->GetTTypefromLoc(DevInst, Loc);
+	if(TileType != XAIEGBL_TILE_TYPE_AIETILE) {
+		XAIE_ERROR("Invalid tile type\n");
+		return XAIE_INVALID_TILE;
+	}
+
+	if (ElfPtr == XAIE_NULL) {
+		XAIE_ERROR("Invalid ElfPtr\n");
+		return XAIE_INVALID_ARGS;
+	}
+
+
+	return XAie_LoadElfPartial(DevInst, Loc, ElfPtr, XAIE_LOAD_ELF_ALL, LoadSym);
 }
 
 /*****************************************************************************/

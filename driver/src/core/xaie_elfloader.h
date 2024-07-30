@@ -60,7 +60,7 @@ AieRC XAie_LoadElfSection(XAie_DevInst *DevInst, XAie_LocType Loc,
 AieRC XAie_LoadElfSectionBlock(XAie_DevInst *DevInst, XAie_LocType Loc,
 		const unsigned char* SectionPtr, u64 TgtAddr, u32 Size);
 AieRC XAie_LoadElfPartial(XAie_DevInst *DevInst, XAie_LocType Loc,
-		const char* ElfPtr, u8 Sections);
+		const char* ElfPtr, u8 Sections, u8 LoadSym);
 
 #endif /* XAIE_FEATURE_ELF_ENABLE */
 
