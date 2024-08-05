@@ -67,10 +67,8 @@ const u8 TransactionHeaderVersion_Minor = 1;
 * @return	TileType (AIETILE/MEMTILE/SHIMPL/SHIMNOC on success and MAX on
 *		error)
 *
-* @note		Internal API only.
-*
 ******************************************************************************/
-u8 _XAie_GetTileTypefromLoc(XAie_DevInst *DevInst, XAie_LocType Loc)
+u8 XAie_GetTileTypefromLoc(XAie_DevInst *DevInst, XAie_LocType Loc)
 {
 	u8 ColType;
 
@@ -102,6 +100,11 @@ u8 _XAie_GetTileTypefromLoc(XAie_DevInst *DevInst, XAie_LocType Loc)
 	return XAIEGBL_TILE_TYPE_MAX;
 }
 
+u8 _XAie_GetTileTypefromLoc(XAie_DevInst *DevInst, XAie_LocType Loc)
+{
+	return XAie_GetTileTypefromLoc(DevInst, Loc);
+}
+
 /*****************************************************************************/
 /**
 * This function is used to check for module and tiletype combination.
@@ -115,10 +118,8 @@ u8 _XAie_GetTileTypefromLoc(XAie_DevInst *DevInst, XAie_LocType Loc)
 * 		XAIE_INVALID_ARGS for incorrect combination of module and tile
 * 		type
 *
-* @note         Internal API only.
-*
 *******************************************************************************/
-AieRC _XAie_CheckModule(XAie_DevInst *DevInst,
+AieRC XAie_CheckModule(XAie_DevInst *DevInst,
 		XAie_LocType Loc, XAie_ModuleType Module)
 {
 	u8 TileType;
@@ -144,6 +145,12 @@ AieRC _XAie_CheckModule(XAie_DevInst *DevInst,
 	return XAIE_OK;
 }
 
+AieRC _XAie_CheckModule(XAie_DevInst *DevInst,
+		XAie_LocType Loc, XAie_ModuleType Module)
+{
+	return XAie_CheckModule(DevInst, Loc, Module);
+}
+
 /*****************************************************************************/
 /**
 * This function is used to get no. of rows for the given tiletype.
@@ -153,10 +160,8 @@ AieRC _XAie_CheckModule(XAie_DevInst *DevInst,
 *
 * @return       BitmapNumRows: Number of rows for given tiletype
 *
-* @note         Internal API only.
-*
 *******************************************************************************/
-u32 _XAie_GetNumRows(XAie_DevInst *DevInst, u8 TileType)
+u32 XAie_GetNumRows(XAie_DevInst *DevInst, u8 TileType)
 {
 	u32 NumRows;
 
@@ -184,6 +189,11 @@ u32 _XAie_GetNumRows(XAie_DevInst *DevInst, u8 TileType)
 	return NumRows;
 }
 
+u32 _XAie_GetNumRows(XAie_DevInst *DevInst, u8 TileType)
+{
+	return XAie_GetNumRows(DevInst, TileType);
+}
+
 /*****************************************************************************/
 /**
 * This function is used to get start row for the given tiletype.
@@ -193,10 +203,8 @@ u32 _XAie_GetNumRows(XAie_DevInst *DevInst, u8 TileType)
 *
 * @return       StartRow: Start row for given tiletype
 *
-* @note         Internal API only.
-*
 *******************************************************************************/
-u32 _XAie_GetStartRow(XAie_DevInst *DevInst, u8 TileType)
+u32 XAie_GetStartRow(XAie_DevInst *DevInst, u8 TileType)
 {
 	u32 StartRow;
 
@@ -224,6 +232,11 @@ u32 _XAie_GetStartRow(XAie_DevInst *DevInst, u8 TileType)
 	}
 
 	return StartRow;
+}
+
+u32 _XAie_GetStartRow(XAie_DevInst *DevInst, u8 TileType)
+{
+	return XAie_GetStartRow(DevInst, TileType);
 }
 
 /*****************************************************************************/
@@ -380,7 +393,7 @@ u32 _XAie_GetTileBitPosFromLoc(XAie_DevInst *DevInst, XAie_LocType Loc)
 * 		indicate the return locs list size.
 *
 *******************************************************************************/
-AieRC _XAie_GetUngatedLocsInPartition(XAie_DevInst *DevInst, u32 *NumTiles,
+AieRC XAie_GetUngatedLocsInPartition(XAie_DevInst *DevInst, u32 *NumTiles,
 		XAie_LocType *Locs)
 {
 	u32 Index = 0;
@@ -406,6 +419,12 @@ AieRC _XAie_GetUngatedLocsInPartition(XAie_DevInst *DevInst, u32 *NumTiles,
 	/* Update NumTiles to size equal to ungated tiles in partition */
 	*NumTiles = Index;
 	return XAIE_OK;
+}
+
+AieRC _XAie_GetUngatedLocsInPartition(XAie_DevInst *DevInst, u32 *NumTiles,
+		XAie_LocType *Locs)
+{
+	return XAie_GetUngatedLocsInPartition(DevInst, NumTiles, Locs);
 }
 
 /*****************************************************************************/

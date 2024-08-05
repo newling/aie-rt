@@ -383,7 +383,7 @@ AieRC _XAieMl_MemTileDmaWriteBd(XAie_DevInst *DevInst , XAie_DmaDesc *DmaDesc,
 				BdProp->Lock->AieMlDmaLock.LckAcqEn.Lsb,
 				BdProp->Lock->AieMlDmaLock.LckAcqEn.Mask);
 
-	Addr = BdBaseAddr + _XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col);
+	Addr = BdBaseAddr + XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col);
 
 	return XAie_BlockWrite32(DevInst, Addr, BdWord, XAIEML_MEMTILEDMA_NUM_BD_WORDS);
 }
@@ -417,7 +417,7 @@ AieRC _XAieMl_MemTileDmaReadBd(XAie_DevInst *DevInst , XAie_DmaDesc *DmaDesc,
 	BdProp = DmaDesc->DmaMod->BdProp;
 	BdBaseAddr = (u64)(DmaDesc->DmaMod->BaseAddr +
 			BdNum * DmaDesc->DmaMod->IdxOffset);
-	Addr = BdBaseAddr + _XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col);
+	Addr = BdBaseAddr + XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col);
 
 	/* Setup DmaDesc with values read from bd registers */
 	for(u8 i = 0; i < XAIEML_MEMTILEDMA_NUM_BD_WORDS; i++) {
@@ -651,7 +651,7 @@ AieRC _XAieMl_TileDmaWriteBd(XAie_DevInst *DevInst , XAie_DmaDesc *DmaDesc,
 				BdProp->BdEn->TlastSuppress.Lsb,
 				BdProp->BdEn->TlastSuppress.Mask);
 
-	Addr = BdBaseAddr + _XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col);
+	Addr = BdBaseAddr + XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col);
 
 	return XAie_BlockWrite32(DevInst, Addr, BdWord, XAIEML_TILEDMA_NUM_BD_WORDS);
 }
@@ -684,7 +684,7 @@ AieRC _XAieMl_TileDmaReadBd(XAie_DevInst *DevInst , XAie_DmaDesc *DmaDesc,
 	BdProp = DmaDesc->DmaMod->BdProp;
 	BdBaseAddr = (u64)(DmaDesc->DmaMod->BaseAddr +
 			BdNum * DmaDesc->DmaMod->IdxOffset);
-	Addr = BdBaseAddr + _XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col);
+	Addr = BdBaseAddr + XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col);
 
 	/* Setup DmaDesc with values read from bd registers */
 	for(u8 i = 0; i < XAIEML_TILEDMA_NUM_BD_WORDS; i++) {
@@ -908,7 +908,7 @@ AieRC _XAieMl_ShimDmaWriteBd(XAie_DevInst *DevInst , XAie_DmaDesc *DmaDesc,
 				BdProp->BdEn->TlastSuppress.Lsb,
 				BdProp->BdEn->TlastSuppress.Mask);
 
-	Addr = BdBaseAddr + _XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col);
+	Addr = BdBaseAddr + XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col);
 
 	Args.NumBdWords = XAIEML_SHIMDMA_NUM_BD_WORDS;
 	Args.BdWords = &BdWord[0U];
@@ -949,7 +949,7 @@ AieRC _XAieMl_ShimDmaReadBd(XAie_DevInst *DevInst , XAie_DmaDesc *DmaDesc,
 	BdProp = DmaDesc->DmaMod->BdProp;
 	BdBaseAddr = (u64)(DmaDesc->DmaMod->BaseAddr +
 			BdNum * DmaDesc->DmaMod->IdxOffset);
-	Addr = BdBaseAddr + _XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col);
+	Addr = BdBaseAddr + XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col);
 
 	/* Setup DmaDesc with values read from bd registers */
 	for(u8 i = 0; i < XAIEML_SHIMDMA_NUM_BD_WORDS; i++) {
@@ -1091,7 +1091,7 @@ AieRC _XAieMl_DmaGetPendingBdCount(XAie_DevInst *DevInst, XAie_LocType Loc,
 	u64 Addr;
 	u32 Mask, StatusReg, TaskQSize;
 
-	Addr = _XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col) +
+	Addr = XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col) +
 		DmaMod->ChStatusBase + ChNum * XAIEML_DMA_STATUS_CHNUM_OFFSET +
 		(u32)Dir * DmaMod->ChStatusOffset;
 
@@ -1149,7 +1149,7 @@ AieRC _XAieMl_DmaGetChannelStatus(XAie_DevInst *DevInst, XAie_LocType Loc,
 	u32 Mask;
 	AieRC RC;
 
-	Addr = _XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col) +
+	Addr = XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col) +
 		DmaMod->ChStatusBase + ChNum * XAIEML_DMA_STATUS_CHNUM_OFFSET +
 		(u32)Dir * DmaMod->ChStatusOffset;
 
@@ -1194,7 +1194,7 @@ AieRC _XAieMl_DmaWaitForDone(XAie_DevInst *DevInst, XAie_LocType Loc,
 	u64 Addr;
 	u32 Mask, Value;
 
-	Addr = _XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col) +
+	Addr = XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col) +
 		DmaMod->ChStatusBase + ChNum * XAIEML_DMA_STATUS_CHNUM_OFFSET +
 		(u32)Dir * DmaMod->ChStatusOffset;
 
@@ -1294,7 +1294,7 @@ AieRC _XAieMl_DmaUpdateBdLen(XAie_DevInst *DevInst, const XAie_DmaMod *DmaMod,
 	u32 RegVal, Mask;
 
 	RegAddr = (u64)(DmaMod->BaseAddr + BdNum * DmaMod->IdxOffset) +
-		_XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col) +
+		XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col) +
 		DmaMod->BdProp->BufferLen.Idx * 4U;
 
 	Mask = DmaMod->BdProp->BufferLen.Mask;
@@ -1326,7 +1326,7 @@ AieRC _XAieMl_ShimDmaUpdateBdLen(XAie_DevInst *DevInst,
 	u32 RegVal;
 
 	RegAddr = (u64)(DmaMod->BaseAddr + BdNum * DmaMod->IdxOffset) +
-		_XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col) +
+		XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col) +
 		DmaMod->BdProp->BufferLen.Idx * 4U;
 
 	RegVal = XAie_SetField(Len,
@@ -1360,7 +1360,7 @@ AieRC _XAieMl_DmaUpdateBdAddr(XAie_DevInst *DevInst, const XAie_DmaMod *DmaMod,
 	u32 RegVal, Mask;
 
 	RegAddr = (u64)(DmaMod->BaseAddr + BdNum * DmaMod->IdxOffset) +
-		_XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col) +
+		XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col) +
 		DmaMod->BdProp->Buffer->TileDmaBuff.BaseAddr.Idx * 4U;
 
 	Mask = DmaMod->BdProp->Buffer->TileDmaBuff.BaseAddr.Mask;
@@ -1394,7 +1394,7 @@ AieRC _XAieMl_ShimDmaUpdateBdAddr(XAie_DevInst *DevInst,
 	u32 RegVal, Mask;
 
 	RegAddr = (u64)(DmaMod->BaseAddr + BdNum * DmaMod->IdxOffset) +
-		_XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col) +
+		XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col) +
 		DmaMod->BdProp->Buffer->ShimDmaBuff.AddrLow.Idx * 4U;
 
 	Mask = DmaMod->BdProp->Buffer->ShimDmaBuff.AddrLow.Mask;
@@ -1409,7 +1409,7 @@ AieRC _XAieMl_ShimDmaUpdateBdAddr(XAie_DevInst *DevInst,
 	}
 
 	RegAddr = (u64)(DmaMod->BaseAddr + BdNum * DmaMod->IdxOffset) +
-		_XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col) +
+		XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col) +
 		DmaMod->BdProp->Buffer->ShimDmaBuff.AddrHigh.Idx * 4U;
 
 	Mask = DmaMod->BdProp->Buffer->ShimDmaBuff.AddrHigh.Mask;

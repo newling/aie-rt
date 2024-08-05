@@ -91,7 +91,7 @@ static AieRC _XAie_IntrCtrlL1Config(XAie_DevInst *DevInst, XAie_LocType Loc,
 		RegOffset = L1IntrMod->BaseDisableRegOff;
 	}
 
-	RegAddr = _XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col) + RegOffset +
+	RegAddr = XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col) + RegOffset +
 					(u8)Switch * L1IntrMod->SwOff;
 
 	return XAie_Write32(DevInst, RegAddr,(u32)(XAIE_ENABLE << IntrId));
@@ -187,7 +187,7 @@ AieRC XAie_IntrCtrlL1IrqSet(XAie_DevInst *DevInst, XAie_LocType Loc,
 	}
 
 	RegOffset = L1IntrMod->BaseIrqRegOff +(u32)((u8)Switch * L1IntrMod->SwOff);
-	RegAddr = _XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col) + RegOffset;
+	RegAddr = XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col) + RegOffset;
 
 	return XAie_Write32(DevInst, RegAddr, BroadcastId);
 }
@@ -258,7 +258,7 @@ AieRC XAie_IntrCtrlL1Event(XAie_DevInst *DevInst, XAie_LocType Loc,
 	EventLsb = IrqEventId * L1IntrMod->IrqEventOff;
 	EventMask = L1IntrMod->BaseIrqEventMask << EventLsb;
 	FldVal = XAie_SetField(MappedEvent, EventLsb, EventMask);
-	RegAddr = _XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col) + RegOffset;
+	RegAddr = XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col) + RegOffset;
 
 	return XAie_MaskWrite32(DevInst, RegAddr, EventMask, FldVal);
 }
@@ -316,7 +316,7 @@ AieRC XAie_IntrCtrlL1BroadcastBlock(XAie_DevInst *DevInst, XAie_LocType Loc,
 
 	RegOffset = L1IntrMod->BaseBroadcastBlockRegOff +
 						(u32)((u8)Switch * L1IntrMod->SwOff);
-	RegAddr = _XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col) + RegOffset;
+	RegAddr = XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col) + RegOffset;
 
 	return XAie_Write32(DevInst, RegAddr, ChannelBitMap);
 }
@@ -376,7 +376,7 @@ AieRC XAie_IntrCtrlL1BroadcastUnblock(XAie_DevInst *DevInst, XAie_LocType Loc,
 
 	RegOffset = L1IntrMod->BaseBroadcastUnblockRegOff +
 						(u32)((u8)Switch * L1IntrMod->SwOff);
-	RegAddr = _XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col) + RegOffset;
+	RegAddr = XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col) + RegOffset;
 
 	return XAie_Write32(DevInst, RegAddr, ChannelBitMap);
 }
@@ -429,7 +429,7 @@ static AieRC _XAie_IntrCtrlL2Config(XAie_DevInst *DevInst, XAie_LocType Loc,
 		RegOffset = L2IntrMod->DisableRegOff;
 	}
 
-	RegAddr = _XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col) + RegOffset;
+	RegAddr = XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col) + RegOffset;
 
 	return XAie_Write32(DevInst, RegAddr, ChannelBitMap);
 }

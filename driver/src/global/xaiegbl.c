@@ -256,8 +256,8 @@ AieRC XAie_SoftPartitionInitialize(XAie_DevInst *DevInst, XAie_PartInitOpts *Opt
 		if(DevPartInfo->BaseAddr == DevInst->BaseAddr) {
 			IsolationFlags |= XAIE_INIT_WEST_ISOLATION;
 		}
-		if((DevInst->BaseAddr + _XAie_GetTileAddr(DevInst, 0u, (DevInst->NumCols - 1))) ==
-			(DevPartInfo->BaseAddr + _XAie_GetTileAddr(DevInst, 0u, (DevPartInfo->NumCols - 1)))) {
+		if((DevInst->BaseAddr + XAie_GetTileAddr(DevInst, 0u, (DevInst->NumCols - 1))) ==
+			(DevPartInfo->BaseAddr + XAie_GetTileAddr(DevInst, 0u, (DevPartInfo->NumCols - 1)))) {
 			IsolationFlags |= XAIE_INIT_EAST_ISOLATION;
 		}
 		RC = DevInst->DevOps->SetPartIsolationAfterRst(DevInst, IsolationFlags);

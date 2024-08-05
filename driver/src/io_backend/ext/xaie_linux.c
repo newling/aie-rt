@@ -588,12 +588,12 @@ static AieRC XAie_LinuxIO_Read32(void *IOInst, u64 RegOff, u32 *Data)
 		}
 	}
 
-	u8 TileType = _XAie_GetTileTypefromLoc(DevInst, Loc);
+	u8 TileType = XAie_GetTileTypefromLoc(DevInst, Loc);
 	if(TileType == XAIEGBL_TILE_TYPE_AIETILE) {
-		OffsetAddr = LinuxIOInst->DataMemAddr + _XAie_GetTileAddr(DevInst, Row, Col);
+		OffsetAddr = LinuxIOInst->DataMemAddr + XAie_GetTileAddr(DevInst, Row, Col);
 		MemSize = OffsetAddr + LinuxIOInst->DataMemSize;
 	} else if(TileType == XAIEGBL_TILE_TYPE_MEMTILE) {
-		OffsetAddr = LinuxIOInst->MemTileMemAddr + _XAie_GetTileAddr(DevInst, Row, Col);
+		OffsetAddr = LinuxIOInst->MemTileMemAddr + XAie_GetTileAddr(DevInst, Row, Col);
 		MemSize = OffsetAddr + LinuxIOInst->MemTileMemSize;
 	}
 

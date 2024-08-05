@@ -72,7 +72,7 @@ static AieRC _XAie_PrivilegeSetColReset(XAie_DevInst *DevInst,
 	TileType = DevInst->DevOps->GetTTypefromLoc(DevInst, Loc);
 	PlIfMod = DevInst->DevProp.DevMod[TileType].PlIfMod;
 	RegAddr = PlIfMod->ColRstOff +
-		_XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col);
+		XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col);
 	FldVal = XAie_SetField(RstEnable,
 			PlIfMod->ColRst.Lsb,
 			PlIfMod->ColRst.Mask);
@@ -185,7 +185,7 @@ static AieRC _XAie_PrivilegeSetBlockAxiMmNsuErr(XAie_DevInst *DevInst,
 	PlIfMod = DevInst->DevProp.DevMod[TileType].PlIfMod;
 	ShimNocAxiMM = PlIfMod->ShimNocAxiMM;
 	RegAddr = ShimNocAxiMM->RegOff +
-		_XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col);
+		XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col);
 	FldVal = XAie_SetField(BlockSlvEnable,
 			ShimNocAxiMM->NsuSlvErr.Lsb,
 			ShimNocAxiMM->NsuSlvErr.Mask);
@@ -296,7 +296,7 @@ static AieRC _XAie_PrivilegeSetL2IrqId(XAie_DevInst *DevInst, XAie_LocType Loc,
 
 	IntrMod = DevInst->DevProp.DevMod[XAIEGBL_TILE_TYPE_SHIMNOC].L2IntrMod;
 	RegOffset = IntrMod->IrqRegOff;
-	RegAddr = _XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col) + RegOffset;
+	RegAddr = XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col) + RegOffset;
 	return XAie_Write32(DevInst, RegAddr, NoCIrqId);
 }
 

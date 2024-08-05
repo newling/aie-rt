@@ -67,7 +67,7 @@ static AieRC _XAie_PmSetColumnClockBuffer(XAie_DevInst *DevInst,
 	ClkBufCntr = PlIfMod->ClkBufCntr;
 
 	RegAddr = ClkBufCntr->RegOff +
-			_XAie_GetTileAddr(DevInst, 0U, Loc.Col);
+			XAie_GetTileAddr(DevInst, 0U, Loc.Col);
 	FldVal = XAie_SetField(Enable, ClkBufCntr->ClkBufEnable.Lsb,
 			ClkBufCntr->ClkBufEnable.Mask);
 
@@ -189,7 +189,7 @@ static AieRC _XAie_SetShimReset(XAie_DevInst *DevInst, XAie_LocType Loc,
 	ShimTileRst = PlIfMod->ShimTileRst;
 
 	RegAddr = ShimTileRst->RegOff +
-		_XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col);
+		XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col);
 	FldVal = XAie_SetField(RstEnable,
 			ShimTileRst->RstCntr.Lsb,
 			ShimTileRst->RstCntr.Mask);
@@ -339,7 +339,7 @@ AieRC _XAie_PartMemZeroInit(XAie_DevInst *DevInst)
 
 			/* Zeroize program memory */
 			RegAddr = CoreMod->ProgMemHostOffset +
-				_XAie_GetTileAddr(DevInst, R, C);
+				XAie_GetTileAddr(DevInst, R, C);
 			RC = XAie_BlockSet32(DevInst, RegAddr, 0,
 					(u32)(CoreMod->ProgMemSize / sizeof(u32)));
 			if(RC != XAIE_OK) {
@@ -349,7 +349,7 @@ AieRC _XAie_PartMemZeroInit(XAie_DevInst *DevInst)
 
 			/* Zeroize data memory */
 			RegAddr = MemMod->MemAddr +
-				_XAie_GetTileAddr(DevInst, R, C);
+				XAie_GetTileAddr(DevInst, R, C);
 			RC = XAie_BlockSet32(DevInst, RegAddr, 0,
 					(u32)(MemMod->Size / sizeof(u32)));
 			if(RC != XAIE_OK) {
@@ -388,7 +388,7 @@ static void _XAie_PmGateTiles(XAie_DevInst *DevInst, XAie_LocType Loc)
 		TileLoc.Row = R - 1U;
 		TileType = DevInst->DevOps->GetTTypefromLoc(DevInst, TileLoc);
 		ClockMod = DevInst->DevProp.DevMod[TileType].ClockMod;
-		RegAddr = _XAie_GetTileAddr(DevInst, TileLoc.Row, TileLoc.Col) +
+		RegAddr = XAie_GetTileAddr(DevInst, TileLoc.Row, TileLoc.Col) +
 				ClockMod->ClockRegOff;
 		XAie_MaskWrite32(DevInst, RegAddr,
 				ClockMod->NextTileClockCntrl.Mask, 0U);
@@ -422,7 +422,7 @@ static void _XAie_PmUngateTiles(XAie_DevInst *DevInst, XAie_LocType FromLoc,
 		TileLoc.Row = R;
 		TileType = DevInst->DevOps->GetTTypefromLoc(DevInst, TileLoc);
 		ClockMod = DevInst->DevProp.DevMod[TileType].ClockMod;
-		RegAddr = _XAie_GetTileAddr(DevInst, TileLoc.Row, TileLoc.Col) +
+		RegAddr = XAie_GetTileAddr(DevInst, TileLoc.Row, TileLoc.Col) +
 				ClockMod->ClockRegOff;
 		XAie_MaskWrite32(DevInst, RegAddr,
 				ClockMod->NextTileClockCntrl.Mask,

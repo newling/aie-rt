@@ -155,13 +155,16 @@ typedef struct {
 * @param	C: Column
 * @return	TileAddr
 *
-* @note		Internal API only.
-*
 ******************************************************************************/
-static inline u64 _XAie_GetTileAddr(XAie_DevInst *DevInst, u8 R, u8 C)
+static inline u64 XAie_GetTileAddr(XAie_DevInst *DevInst, u8 R, u8 C)
 {
 	return (((u64)R & 0xFFU) << DevInst->DevProp.RowShift) |
 		(((u64)C & 0xFFU) << DevInst->DevProp.ColShift);
+}
+
+static inline u64 _XAie_GetTileAddr(XAie_DevInst *DevInst, u8 R, u8 C)
+{
+	return XAie_GetTileAddr(DevInst, R, C);
 }
 
 /*****************************************************************************/
@@ -195,10 +198,15 @@ static inline u32 first_set_bit(u64 Value)
 void XAie_Log(FILE *Fd, const char *prefix, const char *func, u32 line,
 		const char *Format, ...);
 u8 _XAie_GetTileTypefromLoc(XAie_DevInst *DevInst, XAie_LocType Loc);
+u8 XAie_GetTileTypefromLoc(XAie_DevInst *DevInst, XAie_LocType Loc);
 AieRC _XAie_CheckModule(XAie_DevInst *DevInst, XAie_LocType Loc,
 		XAie_ModuleType Module);
+AieRC XAie_CheckModule(XAie_DevInst *DevInst, XAie_LocType Loc,
+                XAie_ModuleType Module);
 AieRC _XAie_GetUngatedLocsInPartition(XAie_DevInst *DevInst, u32 *NumTiles,
 		XAie_LocType *Locs);
+AieRC XAie_GetUngatedLocsInPartition(XAie_DevInst *DevInst, u32 *NumTiles,
+                XAie_LocType *Locs);
 AieRC XAie_Write32(XAie_DevInst *DevInst, u64 RegOff, u32 Value);
 AieRC XAie_Read32(XAie_DevInst *DevInst, u64 RegOff, u32 *Data);
 AieRC XAie_MaskWrite32(XAie_DevInst *DevInst, u64 RegOff, u32 Mask, u32 Value);
@@ -214,7 +222,9 @@ int XAie_RequestCustomTxnOp(XAie_DevInst *DevInst);
 AieRC XAie_AddCustomTxnOp(XAie_DevInst *DevInst, u8 OpNumber, void* Args, size_t size);
 AieRC XAie_RunOp(XAie_DevInst *DevInst, XAie_BackendOpCode Op, void *Arg);
 u32 _XAie_GetNumRows(XAie_DevInst *DevInst, u8 TileType);
+u32 XAie_GetNumRows(XAie_DevInst *DevInst, u8 TileType);
 u32 _XAie_GetStartRow(XAie_DevInst *DevInst, u8 TileType);
+u32 XAie_GetStartRow(XAie_DevInst *DevInst, u8 TileType);
 AieRC XAie_StatusDump(XAie_DevInst *DevInst, XAie_ColStatus *Status);
 AieRC XAie_GetPartitionList(XAie_DevInst *DevInst);
 #endif		/* end of protection macro */
