@@ -84,10 +84,10 @@ namespace xaiefal {
 		 * @return XAIE_OK for success, error code for failure
 		 */
 		AieRC request(XAieUserRsc& RscReq) {
-			uint8_t TileType = _XAie_GetTileTypefromLoc(dev(), RscReq.Loc);
+			uint8_t TileType = XAie_GetTileTypefromLoc(dev(), RscReq.Loc);
 			uint32_t StartBit, StaticOffset, MaxRscId;
 
-			if ((_XAie_CheckModule(dev(), RscReq.Loc, RscReq.Mod) != XAIE_OK) ||
+			if ((XAie_CheckModule(dev(), RscReq.Loc, RscReq.Mod) != XAIE_OK) ||
 					TileType >= XAIEGBL_TILE_TYPE_MAX) {
 				Logger::log(LogLevel::WARN) << __func__ <<
 					" Invalid Location/Module for request" << std::endl;
@@ -130,10 +130,10 @@ namespace xaiefal {
 		 * @return XAIE_OK for success, error code for failure
 		 */
 		AieRC requestAllocated(XAieUserRsc& RscReq) {
-			uint8_t TileType = _XAie_GetTileTypefromLoc(dev(), RscReq.Loc);
+			uint8_t TileType = XAie_GetTileTypefromLoc(dev(), RscReq.Loc);
 			uint32_t StaticOff, rBit, sBit, rIndex, sIndex;
 
-			if ((_XAie_CheckModule(dev(), RscReq.Loc, RscReq.Mod) != XAIE_OK) ||
+			if ((XAie_CheckModule(dev(), RscReq.Loc, RscReq.Mod) != XAIE_OK) ||
 					TileType >= XAIEGBL_TILE_TYPE_MAX) {
 				Logger::log(LogLevel::WARN) << __func__ <<
 					" Invalid Location/Module for request" << std::endl;
@@ -179,8 +179,8 @@ namespace xaiefal {
 				return XAIE_ERR;
 			}
 
-			TileType = _XAie_GetTileTypefromLoc(dev(), RscReq[0].Loc);
-			if ((_XAie_CheckModule(dev(), RscReq[0].Loc, RscReq[0].Mod) != XAIE_OK) ||
+			TileType = XAie_GetTileTypefromLoc(dev(), RscReq[0].Loc);
+			if ((XAie_CheckModule(dev(), RscReq[0].Loc, RscReq[0].Mod) != XAIE_OK) ||
 					TileType >= XAIEGBL_TILE_TYPE_MAX) {
 				Logger::log(LogLevel::WARN) << __func__ <<
 					" Invalid Location/Module for request" << std::endl;
@@ -265,7 +265,7 @@ namespace xaiefal {
 			}
 
 			for (uint32_t i = 0; i < RscReq.size(); i++) {
-				uint8_t TType = _XAie_GetTileTypefromLoc(dev(), RscReq[i].Loc);
+				uint8_t TType = XAie_GetTileTypefromLoc(dev(), RscReq[i].Loc);
 				auto Bitmap = RscMaps[TType].Bitmaps[RscReq[i].RscType];
 				uint32_t StartBit, rBit, rIndex;
 
@@ -289,10 +289,10 @@ namespace xaiefal {
 		 * @return XAIE_OK for success, error code for failure
 		 */
 		AieRC release(XAieUserRsc& RscRel) {
-			uint8_t TileType = _XAie_GetTileTypefromLoc(dev(), RscRel.Loc);
+			uint8_t TileType = XAie_GetTileTypefromLoc(dev(), RscRel.Loc);
 			uint32_t sBit, rBit, sIndex, rIndex, StaticOff;
 
-			if ((_XAie_CheckModule(dev(), RscRel.Loc, RscRel.Mod) != XAIE_OK) ||
+			if ((XAie_CheckModule(dev(), RscRel.Loc, RscRel.Mod) != XAIE_OK) ||
 					TileType >= XAIEGBL_TILE_TYPE_MAX) {
 				Logger::log(LogLevel::WARN) << __func__ <<
 					" Invalid Location/Module for release" << std::endl;
@@ -328,10 +328,10 @@ namespace xaiefal {
 		 * @return XAIE_OK for success, error code for failure
 		 */
 		AieRC free(XAieUserRsc& RscFree) {
-			uint8_t TileType = _XAie_GetTileTypefromLoc(dev(), RscFree.Loc);
+			uint8_t TileType = XAie_GetTileTypefromLoc(dev(), RscFree.Loc);
 			uint32_t rBit, rIndex;
 
-			if ((_XAie_CheckModule(dev(), RscFree.Loc, RscFree.Mod) != XAIE_OK) ||
+			if ((XAie_CheckModule(dev(), RscFree.Loc, RscFree.Mod) != XAIE_OK) ||
 					TileType >= XAIEGBL_TILE_TYPE_MAX) {
 				Logger::log(LogLevel::WARN) << __func__ <<
 					" Invalid Location/Module for free" << std::endl;
@@ -368,9 +368,9 @@ namespace xaiefal {
 				XAie_ModuleType Mod = vStats[i].Mod;
 				XAieRscType Type = vStats[i].RscType;
 				XAie_LocType Loc = vStats[i].Loc;
-				uint8_t TileType = _XAie_GetTileTypefromLoc(dev(), Loc);
+				uint8_t TileType = XAie_GetTileTypefromLoc(dev(), Loc);
 
-				if ((_XAie_CheckModule(dev(), Loc, Mod) != XAIE_OK) ||
+				if ((XAie_CheckModule(dev(), Loc, Mod) != XAIE_OK) ||
 						TileType >= XAIEGBL_TILE_TYPE_MAX) {
 					Logger::log(LogLevel::WARN) << __func__ <<
 						" Invalid Location/Module for stat request"
@@ -441,7 +441,7 @@ namespace xaiefal {
 					continue;
 
 				NumMods = dev()->DevProp.DevMod[TType].NumModules;
-				NumRows = _XAie_GetNumRows(dev(), TType);
+				NumRows = XAie_GetNumRows(dev(), TType);
 
 				for (RType = 0; RType < XAIE_MAXRSC; RType++) {
 					auto MaxRsc = &RscMaps[TType].MaxRscs[RType];
@@ -549,7 +549,7 @@ namespace xaiefal {
 					return XAIE_INVALID_ARGS;
 				}
 
-				NumRows = _XAie_GetNumRows(dev(), TileType);
+				NumRows = XAie_GetNumRows(dev(), TileType);
 				NumRscs = getTotalRscs(TileType, Mod, RscType);
 				BitmapSize = NumRows * dev()->NumCols * NumRscs;
 				Bitmap64Size = roundUp(BitmapSize, 64U) / 64U;
@@ -619,7 +619,7 @@ namespace xaiefal {
 				if (TType == XAIEGBL_TILE_TYPE_SHIMNOC)
 					continue;
 
-				NumRows = _XAie_GetNumRows(dev(), TType);
+				NumRows = XAie_GetNumRows(dev(), TType);
 				for (RType = 0; RType < (uint8_t)XAIE_MAXRSC; RType++) {
 					auto MaxRsc = &RscMaps[TType].MaxRscs[RType];
 					uint32_t BitmapSize, TotalRscs = 0;
@@ -681,10 +681,10 @@ namespace xaiefal {
 		 * @return StartBit position
 		 */
 		uint32_t getStaticOff(XAie_LocType Loc, XAie_ModuleType Mod, XAieRscType Type) {
-			uint8_t TileType = _XAie_GetTileTypefromLoc(dev(), Loc);
+			uint8_t TileType = XAie_GetTileTypefromLoc(dev(), Loc);
 			uint32_t NumCols, NumRows, MaxRscId;
 
-			NumRows = _XAie_GetNumRows(dev(), TileType);
+			NumRows = XAie_GetNumRows(dev(), TileType);
 			MaxRscId = getMaxRsc(Loc, Mod, Type);
 			NumCols = dev()->NumCols;
 
@@ -703,12 +703,12 @@ namespace xaiefal {
 		 * @return StartBit position
 		 */
 		uint32_t getStartBit(XAie_LocType Loc, XAie_ModuleType Mod, XAieRscType Type) {
-			uint8_t TileType = _XAie_GetTileTypefromLoc(dev(), Loc);
+			uint8_t TileType = XAie_GetTileTypefromLoc(dev(), Loc);
 			uint32_t NumCols, NumRows, StartRow;
 			uint32_t StartBit, ModOffset = 0U;
 
-			StartRow = _XAie_GetStartRow(dev(), TileType);
-			NumRows = _XAie_GetNumRows(dev(), TileType);
+			StartRow = XAie_GetStartRow(dev(), TileType);
+			NumRows = XAie_GetNumRows(dev(), TileType);
 			NumCols = dev()->NumCols;
 
 			if (Mod == XAIE_CORE_MOD)
@@ -733,7 +733,7 @@ namespace xaiefal {
 		 * @return Max number of resources, zero of not found
 		 */
 		uint32_t getMaxRsc(XAie_LocType Loc, XAie_ModuleType Mod, XAieRscType Type) {
-			uint8_t TileType = _XAie_GetTileTypefromLoc(dev(), Loc);
+			uint8_t TileType = XAie_GetTileTypefromLoc(dev(), Loc);
 
 			auto vMaxRscs = RscMaps[TileType].MaxRscs[Type];
 			for (auto x : vMaxRscs)
@@ -757,11 +757,11 @@ namespace xaiefal {
 			uint32_t MaxRscId;
 
 			for (auto rsc : vRscs) {
-				uint8_t TType = _XAie_GetTileTypefromLoc(dev(), rsc.Loc);
+				uint8_t TType = XAie_GetTileTypefromLoc(dev(), rsc.Loc);
 				uint32_t sIndex, rIndex, sBit, rBit;
 				uint32_t StartBit, StaticOff, Mask;
 
-				if ((_XAie_CheckModule(dev(), rsc.Loc, rsc.Mod) != XAIE_OK) ||
+				if ((XAie_CheckModule(dev(), rsc.Loc, rsc.Mod) != XAIE_OK) ||
 						TType >= XAIEGBL_TILE_TYPE_MAX) {
 					Logger::log(LogLevel::WARN) << __func__ <<
 						" Invalid Location/Module for request" << std::endl;
@@ -844,7 +844,7 @@ namespace xaiefal {
 			vRscs.clear();
 			NumTiles = dev()->NumCols * dev()->NumRows;
 			Locs.resize(NumTiles);
-			RC = _XAie_GetUngatedLocsInPartition(dev(),
+			RC = XAie_GetUngatedLocsInPartition(dev(),
 					&NumTiles, Locs.data());
 			if (RC != XAIE_OK) {
 				Logger::log(LogLevel::WARN) <<
@@ -859,7 +859,7 @@ namespace xaiefal {
 			for (auto loc : Locs) {
 				uint8_t TType;
 
-				TType = _XAie_GetTileTypefromLoc(dev(), loc);
+				TType = XAie_GetTileTypefromLoc(dev(), loc);
 				Rsc.Loc = loc;
 				if (TType == XAIEGBL_TILE_TYPE_AIETILE) {
 					Rsc.Mod = XAIE_MEM_MOD;
@@ -919,7 +919,7 @@ namespace xaiefal {
 			}
 			case XAIE_TRACECTRL:
 			{
-				if (_XAie_GetNumRows(dev(), TileType) > 0U)
+				if (XAie_GetNumRows(dev(), TileType) > 0U)
 					return XAIE_TRACE_PER_MOD;
 				else
 					return 0U;
@@ -970,7 +970,7 @@ namespace xaiefal {
 			}
 			case XAIE_COMBOEVENT:
 			{
-				if (_XAie_GetNumRows(dev(), TileType) > 0U)
+				if (XAie_GetNumRows(dev(), TileType) > 0U)
 					return XAIE_COMBO_PER_MOD;
 				else
 					return 0U;

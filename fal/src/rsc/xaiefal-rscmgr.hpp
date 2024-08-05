@@ -322,7 +322,7 @@ namespace xaiefal {
 
 			NumTiles = dev()->NumCols * dev()->NumRows;
 			vLocs.resize(NumTiles);
-			RC = _XAie_GetUngatedLocsInPartition(dev(), &NumTiles, vLocs.data());
+			RC = XAie_GetUngatedLocsInPartition(dev(), &NumTiles, vLocs.data());
 			if (RC != XAIE_OK) {
 				Logger::log(LogLevel::WARN) << "Unable to reserve " <<
 					"resources for ECC, get ungated tiles failed"
@@ -335,7 +335,7 @@ namespace xaiefal {
 				uint8_t TileType;
 				XAieUserRsc Rsc;
 
-				TileType = _XAie_GetTileTypefromLoc(dev(), loc);
+				TileType = XAie_GetTileTypefromLoc(dev(), loc);
 				if (TileType == XAIEGBL_TILE_TYPE_AIETILE) {
 					Rsc.Loc = loc;
 					Rsc.Mod = XAIE_CORE_MOD;
