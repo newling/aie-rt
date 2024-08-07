@@ -48,9 +48,6 @@ typedef struct {
 	u64 NpiBaseAddr;
 } XAie_BaremetalIO;
 
-/************************** Variable Definitions *****************************/
-static XAie_BaremetalIO BaremetalIO;
-
 /************************** Function Definitions *****************************/
 /*****************************************************************************/
 /**

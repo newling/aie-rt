@@ -600,7 +600,7 @@ AieRC _XAie_PrintPartitionList(XAie_DevInst *DevInst)
 	while (NodePtr != NULL) {
 		ListNode = XAIE_CONTAINER_OF(NodePtr, XAie_PartitionList, Node);
 
-		printf("Partition ID:   %d\n",ListNode->PartitionId);
+		PRINT("Partition ID:   "U32_FORMAT"\n",ListNode->PartitionId);
 		printf("\tStart Col:    %d \n", ListNode->ColRange.Start);
 		printf("\tNum Cols:     %d\n", ListNode->ColRange.Num);
 		printf("\tPartition Fd: %d\n", ListNode->PartitionFd);
