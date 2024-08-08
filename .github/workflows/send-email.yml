@@ -93,21 +93,23 @@ jobs:
         APPROVED_REVIEWERS=$(echo "$REVIEWS_JSON" | jq '[.[] | select(.state=="APPROVED") | .user.login] | unique')
         echo "APPROVED_REVIEWERS are $APPROVED_REVIEWERS"
 
-        # Check if there is at least two approval
-        if [ $(echo "$APPROVED_REVIEWERS" | jq 'length') -le 2 ]; then
+        # Check if there is at least one approval
+        if [ $(echo "$APPROVED_REVIEWERS" | jq 'length') -le 0 ]; then
             #echo "Need one developer approval and review bot approval, but not found."
-            echo "Need two developer approval, but not found."
-            gh pr comment $PR_NUMBER --body "**[GITHUB ACTIONS]** :x: The process of generating and sending the patch email failed. Atleast one developer reviewer and review bot approval needed! :x: ."
+            echo "Need one developer approval, but not found."
+            gh pr comment $PR_NUMBER --body "**[GITHUB ACTIONS]** :x: The process of generating and sending the patch email failed. Atleast one developer reviewer approval needed! :x: ."
             exit 1
         fi
         
-        # Check if review bot approved
-        #Fix me , disable review bot approval check to address review bot service broken issue
-        #if ! echo "$APPROVED_REVIEWERS" | jq -r '.[]' | grep -q 'bot'; then
-        #  echo "Review bot approvals not found."
-        #  gh pr comment $PR_NUMBER --body "**[GITHUB ACTIONS]** :x: The process of generating and sending the patch email failed. Review bot approval needed! :x: ."
-        #  exit 1
-        #fi
+        # Check if developer reviewer approved
+        # FixMe Disable Review bot mandatory approve check to addressing review bot service broken issue
+        if [ $(echo "$APPROVED_REVIEWERS" | jq 'length') -eq 1 ]; then
+          if echo "$APPROVED_REVIEWERS" | jq -r '.[]' | grep -q 'bot'; then
+            echo "Developer Reviewer approvals not found."
+            gh pr comment $PR_NUMBER --body "**[GITHUB ACTIONS]** :x: The process of generating and sending the patch email failed. Review bot approval needed! :x: ."
+            exit 1
+          fi
+        fi
 
         # Fetch the login of the first approver
         FIRST_APPROVER_LOGIN=$(echo "$REVIEWS_JSON" | jq -r '[.[] | select(.state=="APPROVED")][0].user.login')
