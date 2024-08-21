@@ -28,6 +28,7 @@
 #include "xaie_reset_aie.h"
 #include "xaie_feature_config.h"
 #include "xaie_helper.h"
+#include "xaie_helper_internal.h"
 #include "xaie_io_privilege.h"
 #include "xaie_npi.h"
 
@@ -455,6 +456,22 @@ AieRC _XAie_PrivilegeInitPart(XAie_DevInst *DevInst, XAie_PartInitOpts *Opts)
 		return RC;
 	}
 
+	/* Enable only the tiles requested in Opts parameter */
+        if(Opts != NULL && Opts->NumUseTiles > 0) {
+                XAie_BackendTilesArray TilesArray;
+
+                TilesArray.NumTiles = Opts->NumUseTiles;
+                TilesArray.Locs = Opts->Locs;
+
+                RC = XAie_RunOp(DevInst, XAIE_BACKEND_OP_REQUEST_TILES,
+                (void *)&TilesArray);
+
+                if(RC != XAIE_OK) {
+			_XAie_PrivilegeSetPartProtectedRegs(DevInst, XAIE_DISABLE);
+                        return RC;
+                }
+        }
+
 	/*
 	 * This is a temporary workaround to unblock rel-v2023.1 and make
 	 * XAie_PartitionInitialize() consistent with XAie_ResetPartition().
@@ -465,21 +482,15 @@ AieRC _XAie_PrivilegeInitPart(XAie_DevInst *DevInst, XAie_PartInitOpts *Opts)
 			_XAie_PrivilegeSetPartProtectedRegs(DevInst, XAIE_DISABLE);
 			return RC;
 		}
-	}
 
-	/* Enable only the tiles requested in Opts parameter */
-	if(Opts != NULL) {
-		XAie_BackendTilesArray TilesArray;
+		for(u32 C = 0; C < DevInst->NumCols; C++) {
+			XAie_LocType Loc;
+			u32 ColClockStatus;
 
-		TilesArray.NumTiles = Opts->NumUseTiles;
-		TilesArray.Locs = Opts->Locs;
-
-		RC = XAie_RunOp(DevInst, XAIE_BACKEND_OP_REQUEST_TILES,
-		(void *)&TilesArray);
-
-		if(RC != XAIE_OK) {
-			_XAie_PrivilegeSetPartProtectedRegs(DevInst, XAIE_DISABLE);
-			return RC;
+			Loc = XAie_TileLoc(C, 1);
+			ColClockStatus = _XAie_GetTileBitPosFromLoc(DevInst, Loc);
+			_XAie_ClrBitInBitmap(DevInst->DevOps->TilesInUse,
+				       ColClockStatus, DevInst->NumRows - 1);
 		}
 	}
 
