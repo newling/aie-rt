@@ -18,7 +18,7 @@
  *
  */
 extern int test_lock(XAie_DevInst *DevInst);
-
+extern int test_aie_auto_routing(XAie_DevInst *DevInst);
 /*
  * Description: Add function pointers to the above test-api/s here
  */
@@ -32,6 +32,7 @@ int (*tests_aiert[])(XAie_DevInst *DevInst) =
  */
 const char *test_names_aiert[] =
 {
-	"test_lock"
+	"test_lock",
+	"test_aie_auto_routing"
 };
 /** @} */

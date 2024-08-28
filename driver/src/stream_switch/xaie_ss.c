@@ -263,6 +263,99 @@ static AieRC _XAie_StreamSwitchConfigureCct(XAie_DevInst *DevInst,
 /*****************************************************************************/
 /**
 *
+* This API is used to connect the selected master port to the specified slave
+* port of the stream switch switch in ciruit switch mode.
+* This API in particular silences the port config verifier and simply
+* returns when incorrect config is provided.
+*
+* @param	DevInst: Device Instance
+* @param	Loc: Loc of AIE Tiles
+* @param	Slave - Slave port type.
+* @param	SlvPortNum- Slave port number.
+* @param	Master - Master port type.
+* @param	MstrPortNum- Master port number.
+* @param	SlvEnable - Enable/Disable the slave port (1-Enable,0-Disable).
+*
+* @return	XAIE_OK on success, Error code on failure.
+*
+* @note		Internal API. When PortType is TRACE and there are more than one
+*		TRACE ports in the Tile, PortNum 0 maps to CORE_TRACE_PORT and
+*		PortNum 1 maps to MEM_TRACE_PORT.
+*
+*******************************************************************************/
+static AieRC _XAie_SStreamSwitchConfigureCct(XAie_DevInst *DevInst,
+		XAie_LocType Loc, StrmSwPortType Slave, u8 SlvPortNum,
+		StrmSwPortType Master, u8 MstrPortNum, u8 Enable)
+{
+	AieRC RC;
+	u64 MstrAddr;
+	u64 SlvAddr;
+	u32 MstrOff;
+	u32 MstrVal;
+	u32 SlvOff;
+	u32 SlvVal;
+	u8 SlaveIdx;
+	u8 TileType;
+	const XAie_StrmMod *StrmMod;
+
+	if((DevInst == XAIE_NULL) ||
+			(DevInst->IsReady != XAIE_COMPONENT_IS_READY)) {
+		XAIE_ERROR("Invalid Device Instance\n");
+		return XAIE_INVALID_ARGS;
+	}
+
+	if((Slave >= SS_PORT_TYPE_MAX) || (Master >= SS_PORT_TYPE_MAX)) {
+		XAIE_ERROR("Invalid Stream Switch Ports\n");
+		return XAIE_ERR_STREAM_PORT;
+	}
+
+	TileType = DevInst->DevOps->GetTTypefromLoc(DevInst, Loc);
+	if(TileType == XAIEGBL_TILE_TYPE_MAX) {
+		return XAIE_OK;
+	}
+
+	/* Get stream switch module pointer from device instance */
+	StrmMod = DevInst->DevProp.DevMod[TileType].StrmSw;
+
+	RC = StrmMod->PortVerify(Slave, SlvPortNum, Master, MstrPortNum);
+	if(RC != XAIE_OK) {
+        return XAIE_OK;
+    }
+
+	RC = _XAie_GetSlaveIdx(StrmMod, Slave, SlvPortNum, &SlaveIdx);
+	if(RC != XAIE_OK) {
+		return XAIE_OK;
+	}
+
+	/* Compute the register value and register address for the master port*/
+	RC = _StrmConfigMstr(StrmMod, Master, MstrPortNum, Enable, XAIE_DISABLE,
+			SlaveIdx, &MstrVal, &MstrOff);
+	if(RC != XAIE_OK) {
+		return XAIE_OK;
+	}
+
+	/* Compute the register value and register address for slave port */
+	RC = _XAie_StrmConfigSlv(StrmMod, Slave, SlvPortNum, Enable,
+			XAIE_DISABLE, &SlvVal, &SlvOff);
+	if(RC != XAIE_OK) {
+		return XAIE_OK;
+	}
+
+	/* Compute absolute address and write to register */
+	MstrAddr = MstrOff + _XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col);
+	SlvAddr = SlvOff + _XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col);
+
+	RC = XAie_Write32(DevInst, MstrAddr, MstrVal);
+	if(RC != XAIE_OK) {
+		return RC;
+	}
+
+	return XAie_Write32(DevInst, SlvAddr, SlvVal);
+}
+
+/*****************************************************************************/
+/**
+*
 * This API is used to enable the connection between the selected master port
 * to the specified slave port of the stream switch switch in ciruit switch mode.
 *
@@ -314,6 +407,35 @@ AieRC XAie_StrmConnCctDisable(XAie_DevInst *DevInst, XAie_LocType Loc,
 		u8 MstrPortNum)
 {
 	return _XAie_StreamSwitchConfigureCct(DevInst, Loc, Slave, SlvPortNum,
+			Master, MstrPortNum, XAIE_DISABLE);
+
+}
+
+/*****************************************************************************/
+/**
+*
+* This (Silenced) API is used to disable the connection between the selected master port
+* to the specified slave port of the stream switch in ciruit switch mode.
+*
+* @param	DevInst: Device Instance
+* @param	Loc: Loc of AIE Tiles
+* @param	Slave: Slave port type.
+* @param	SlvPortNum: Slave port number.
+* @param	Master: Master port type.
+* @param	MstrPortNum: Master port number.
+*
+* @return	XAIE_OK on success, Error code on failure.
+*
+* @note		None. When PortType is TRACE and there are more than one TRACE
+*		ports in the Tile, PortNum 0 maps to CORE_TRACE_PORT and
+*		PortNum 1 maps to MEM_TRACE_PORT.
+*
+*******************************************************************************/
+AieRC XAie_SStrmConnCctDisable(XAie_DevInst *DevInst, XAie_LocType Loc,
+		StrmSwPortType Slave, u8 SlvPortNum, StrmSwPortType Master,
+		u8 MstrPortNum)
+{
+	return _XAie_SStreamSwitchConfigureCct(DevInst, Loc, Slave, SlvPortNum,
 			Master, MstrPortNum, XAIE_DISABLE);
 
 }

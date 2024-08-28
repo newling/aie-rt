@@ -28,6 +28,7 @@ extern "C" {
 #include <xaiengine/xaiegbl_defs.h>
 #include <xaiengine/xaie_lite_util.h>
 #include <xaiengine/xaie_txn.h>
+#include <xaiengine/xaie_routing.h>
 
 #ifdef __cplusplus
 }
