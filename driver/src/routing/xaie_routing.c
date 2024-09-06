@@ -33,21 +33,21 @@
 /***************************** Helper APIs *********************************/
 void PrintBits(u8 value)
 {
-	printf("0b");
+	XAIE_DBG("0b");
 	for (int i = 7; i >= 0; i--) {
-		printf("|%d", (value >> i) & 1);
+		XAIE_DBG("|%d", (value >> i) & 1);
 	}
-	printf("|");
+	XAIE_DBG("|");
 }
 
 void PrintBDBits(uint64_t num)
 {
-	printf("0b");
+	XAIE_DBG("0b");
 	/* Ensure we start from the highest bit of a 48-bit number */
 	for (int i = 47; i >= 0; i--) {
-		printf("|%lu", (num >> i) & 1);
+		XAIE_DBG("|%lu", (num >> i) & 1);
 		if (i % 8 == 0) {
-			printf("|");
+			XAIE_DBG("|");
 		}
 	}
 }
@@ -144,11 +144,11 @@ static void _XAie_printBitfield(int value, int bits)
 AieRC XAie_dumpConstraintsToPrint(XAie_RoutingInstance* RoutingInstance)
 {
 	if (RoutingInstance == NULL) {
-		printf("Invalid input to dumpConstraintsToPrint\n");
+		XAIE_DBG("Invalid input to dumpConstraintsToPrint\n");
 		return XAIE_ERR;
 	}
 
-	printf("{\n  \"tiles\": [\n");
+	XAIE_DBG("{\n  \"tiles\": [\n");
 
 	for (u8 row = 0; row < RoutingInstance->NumRows; row++) {
 		for (u8 col = 0; col < RoutingInstance->NumCols; col++) {
@@ -158,14 +158,14 @@ AieRC XAie_dumpConstraintsToPrint(XAie_RoutingInstance* RoutingInstance)
 
 			if (row < RoutingInstance->NumRows - 1 ||
 					col < RoutingInstance->NumCols - 1) {
-				printf(",\n");
+				XAIE_DBG(",\n");
 			}
 		}
 	}
 
-	printf("\n  ],\n");
-	printf("  \"initialConstraints\": ");
-	printf("\n}\n");
+	XAIE_DBG("\n  ],\n");
+	XAIE_DBG("  \"initialConstraints\": ");
+	XAIE_DBG("\n}\n");
 	return XAIE_OK;
 }
 
@@ -191,9 +191,9 @@ AieRC XAie_dumpSpecificConstraintToPrint(XAie_RoutingInstance* RoutingInstance, 
 	}
 
 	XAie_CoreConstraint *constraint = RoutingInstance->CoreConstraintPerCore[col][row];
-	printf("{\n  \"tile\":\n");
+	XAIE_DBG("{\n  \"tile\":\n");
 	XAie_coreConstraintToPrint(RoutingInstance, constraint, row, col);
-	printf("\n}\n");
+	XAIE_DBG("\n}\n");
 	return XAIE_OK;
 }
 
@@ -216,56 +216,56 @@ AieRC XAie_coreConstraintToPrint(XAie_RoutingInstance* RoutingInstance,
 {
 	const char* tileTypeStr[] = {"XAIE_AIE_SHIM", "XAIE_AIE_MEM", "XAIE_AIE_CORE"};
 
-	printf("    {\n");
-	printf("      \"row\": %d,\n", row);
-	printf("      \"col\": %d,\n", col);
+	XAIE_DBG("    {\n");
+	XAIE_DBG("      \"row\": %d,\n", row);
+	XAIE_DBG("      \"col\": %d,\n", col);
 
-	printf("      \"MM2S_State\": [");
+	XAIE_DBG("      \"MM2S_State\": [");
 	_XAie_printBitfield(constraint->MM2S_State, 2);
-	printf("],\n");
+	XAIE_DBG("],\n");
 
-	printf("      \"S2MM_State\": [");
+	XAIE_DBG("      \"S2MM_State\": [");
 	_XAie_printBitfield(constraint->S2MM_State, 2);
-	printf("],\n");
+	XAIE_DBG("],\n");
 
-	printf("      \"AllChannelsInUse\": %d,\n", constraint->AllChannelsInUse);
+	XAIE_DBG("      \"AllChannelsInUse\": %d,\n", constraint->AllChannelsInUse);
 
-	printf("      \"BDState\": [");
+	XAIE_DBG("      \"BDState\": [");
 	if (_XAie_isMemTile(RoutingInstance, XAie_TileLoc(col, row)))
 		_XAie_printBitfield(constraint->BDState, 48);
 	else
 		_XAie_printBitfield(constraint->BDState, 16);
-	printf("],\n");
-	printf("      \"AllBDsareInUse\": %d,\n", constraint->AllBDsareInUse);
-	printf("      \"tile_type\": \"%s\",\n", tileTypeStr[constraint->tile_type]);
-	printf("      \"SlaveEast\": [");
+	XAIE_DBG("],\n");
+	XAIE_DBG("      \"AllBDsareInUse\": %d,\n", constraint->AllBDsareInUse);
+	XAIE_DBG("      \"tile_type\": \"%s\",\n", tileTypeStr[constraint->tile_type]);
+	XAIE_DBG("      \"SlaveEast\": [");
 	_XAie_printBitfield(constraint->SlaveEast, 8);
-	printf("],\n");
+	XAIE_DBG("],\n");
 
-	printf("      \"SlaveWest\": [");
+	XAIE_DBG("      \"SlaveWest\": [");
 	_XAie_printBitfield(constraint->SlaveWest, 8);
-	printf("],\n");
+	XAIE_DBG("],\n");
 
-	printf("      \"SlaveSouth\": [");
+	XAIE_DBG("      \"SlaveSouth\": [");
 	_XAie_printBitfield(constraint->SlaveSouth, 8);
-	printf("],\n");
+	XAIE_DBG("],\n");
 
-	printf("      \"SlaveNorth\": [");
+	XAIE_DBG("      \"SlaveNorth\": [");
 	_XAie_printBitfield(constraint->SlaveNorth, 8);
-	printf("],\n");
+	XAIE_DBG("],\n");
 
-	printf("      \"MasterEast\": [");
+	XAIE_DBG("      \"MasterEast\": [");
 	_XAie_printBitfield(constraint->MasterEast, 8);
-	printf("],\n");
+	XAIE_DBG("],\n");
 
-	printf("      \"MasterWest\": [");
+	XAIE_DBG("      \"MasterWest\": [");
 	_XAie_printBitfield(constraint->MasterWest, 8);
-	printf("],\n");
+	XAIE_DBG("],\n");
 
-	printf("      \"MasterNorth\": [");
+	XAIE_DBG("      \"MasterNorth\": [");
 	_XAie_printBitfield(constraint->MasterNorth, 8);
-	printf("],\n");
-	printf("    }");
+	XAIE_DBG("],\n");
+	XAIE_DBG("    }");
 	return XAIE_OK;
 }
 
@@ -331,13 +331,13 @@ static void _XAie_drawRoute(XAie_RoutingInstance *routingInstance, XAie_LocType 
 
 	Grid = calloc(routingInstance->NumRows, sizeof(char *));
 	if (!Grid) {
-		printf("Grid alloc failed.\n");
+		XAIE_DBG("Grid alloc failed.\n");
 		return;
 	}
 	for (int i = 0; i < routingInstance->NumRows; i++) {
 		Grid[i] = calloc(routingInstance->NumCols, sizeof(char));
 		if (!Grid[i]) {
-			printf("Grid alloc failed.\n");
+			XAIE_DBG("Grid alloc failed.\n");
 			goto out;
 		}
 		memset(Grid[i], '.', routingInstance->NumCols * sizeof(char));
@@ -377,35 +377,35 @@ static void _XAie_drawRoute(XAie_RoutingInstance *routingInstance, XAie_LocType 
 	}
 
 	/* Print the grid with bounding box and title */
-	printf(" Routing Path between S[%d %d] and D[%d %d]\n",
+	XAIE_DBG(" Routing Path between S[%d %d] and D[%d %d]\n",
 			source.Col, source.Row, destination.Col, destination.Row);
 	/* Top left corner of the box */
-	printf(" +");
+	XAIE_DBG(" +");
 	for (int col = 0; col < routingInstance->NumCols; col++) {
 		/* Top border of the box */
-		printf("--");
+		XAIE_DBG("--");
 	}
 	/* Top right corner of the box */
-	printf("+\n");
+	XAIE_DBG("+\n");
 
 	for (int row = 0; row < routingInstance->NumRows; row++) {
 		/* Left border of the box */
-		printf(" | ");
+		XAIE_DBG(" | ");
 		for (int col = 0; col < routingInstance->NumCols; col++) {
-			printf("%c ", Grid[row][col]);
+			XAIE_DBG("%c ", Grid[row][col]);
 		}
 		/* Right border of the box */
-		printf("|\n");
+		XAIE_DBG("|\n");
 	}
 
 	/* Bottom left corner of the box */
-	printf(" +");
+	XAIE_DBG(" +");
 	for (int col = 0; col < routingInstance->NumCols; col++) {
 		/* Bottom border of the box */
-		printf("--");
+		XAIE_DBG("--");
 	}
 	/* Bottom right corner of the box */
-	printf("+\n");
+	XAIE_DBG("+\n");
 
 out:
 	for (int i = 0; i < routingInstance->NumRows; i++) {
@@ -438,13 +438,13 @@ AieRC XAie_RoutesReveal(XAie_RoutingInstance *routingInstance, XAie_LocType sour
 
 	Grid = calloc(routingInstance->NumRows, sizeof(char *));
 	if (!Grid) {
-		printf("Grid alloc failed.\n");
+		XAIE_DBG("Grid alloc failed.\n");
 		return XAIE_ERR;
 	}
 	for (int i = 0; i < routingInstance->NumRows; i++) {
 		Grid[i] = calloc(routingInstance->NumCols, sizeof(char));
 		if (!Grid[i]) {
-			printf("Grid alloc failed.\n");
+			XAIE_DBG("Grid alloc failed.\n");
 			Rc = XAIE_ERR;
 			goto out;
 		}
@@ -1192,67 +1192,67 @@ void XAie_DumpRoutingSwitchInfo(XAie_RoutingInstance *routingInstance,
 					CoreConstraintPerCore[CurrTile.Col][CurrTile.Row];
 
 		/* Print Tile information */
-		printf("*********************************************\n");
-		printf("Tile[%d, %d]:\n", CurrTile.Col, CurrTile.Row);
+		XAIE_DBG("*********************************************\n");
+		XAIE_DBG("Tile[%d, %d]:\n", CurrTile.Col, CurrTile.Row);
 
 		/* CoreConstraint fields */
-		printf("\tisAutoConfigured: %s\n",
+		XAIE_DBG("\tisAutoConfigured: %s\n",
 			CurrentTileconstraint->isAutoConfigured ? "true" : "false");
-		printf("\tMM2S_State: ");
+		XAIE_DBG("\tMM2S_State: ");
 		PrintBits(CurrentTileconstraint->MM2S_State);
-		printf("\n");
-		printf("\tS2MM_State: ");
+		XAIE_DBG("\n");
+		XAIE_DBG("\tS2MM_State: ");
 		PrintBits(CurrentTileconstraint->S2MM_State);
-		printf("\n");
+		XAIE_DBG("\n");
 		if (CurrentTileconstraint->tile_type == XAIE_AIE_SHIM) {
-			printf("\tShimMM2S_State: ");
+			XAIE_DBG("\tShimMM2S_State: ");
 			PrintBits(CurrentTileconstraint->ShimMM2S_State);
-			printf("\n");
-			printf("\tShimS2MM_State: ");
+			XAIE_DBG("\n");
+			XAIE_DBG("\tShimS2MM_State: ");
 			PrintBits(CurrentTileconstraint->ShimS2MM_State);
-			printf("\n");
+			XAIE_DBG("\n");
 
 		}
-		printf("\tBDState: ");
+		XAIE_DBG("\tBDState: ");
 		PrintBDBits(CurrentTileconstraint->BDState);
-		printf("\n");
+		XAIE_DBG("\n");
 
 		/* Slave and Master ports */
-		printf("\tSlaveEast: ");
+		XAIE_DBG("\tSlaveEast: ");
 		PrintBits(CurrentTileconstraint->SlaveEast);
-		printf("\n");
-		printf("\tSlaveWest: ");
+		XAIE_DBG("\n");
+		XAIE_DBG("\tSlaveWest: ");
 		PrintBits(CurrentTileconstraint->SlaveWest);
-		printf("\n");
-		printf("\tSlaveSouth: ");
+		XAIE_DBG("\n");
+		XAIE_DBG("\tSlaveSouth: ");
 		PrintBits(CurrentTileconstraint->SlaveSouth);
-		printf("\n");
-		printf("\tSlaveNorth: ");
+		XAIE_DBG("\n");
+		XAIE_DBG("\tSlaveNorth: ");
 		PrintBits(CurrentTileconstraint->SlaveNorth);
-		printf("\n");
-		printf("\tMasterEast: ");
+		XAIE_DBG("\n");
+		XAIE_DBG("\tMasterEast: ");
 		PrintBits(CurrentTileconstraint->MasterEast);
-		printf("\n");
-		printf("\tMasterWest: ");
+		XAIE_DBG("\n");
+		XAIE_DBG("\tMasterWest: ");
 		PrintBits(CurrentTileconstraint->MasterWest);
-		printf("\n");
-		printf("\tMasterSouth: ");
+		XAIE_DBG("\n");
+		XAIE_DBG("\tMasterSouth: ");
 		PrintBits(CurrentTileconstraint->MasterSouth);
-		printf("\n");
-		printf("\tMasterNorth: ");
+		XAIE_DBG("\n");
+		XAIE_DBG("\tMasterNorth: ");
 		PrintBits(CurrentTileconstraint->MasterNorth);
-		printf("\n");
+		XAIE_DBG("\n");
 
 		/* Core execution status */
-		printf("\tisCoreExecuting: %s\n",
+		XAIE_DBG("\tisCoreExecuting: %s\n",
 			CurrentTileconstraint->isCoreExecuting ? "true" : "false");
 
 		/* Routing paths */
 		XAie_ProgrammedRoutes *currentRoute = CurrentTileconstraint->routesDB;
 		while (currentRoute != NULL) {
-			printf("\tRouting Path:\n");
+			XAIE_DBG("\tRouting Path:\n");
 			XAie_RoutingPath* routePath = currentRoute->routePath;
-			printf("\tSource[%d, %d] -> Destination[%d, %d], "
+			XAIE_DBG("\tSource[%d, %d] -> Destination[%d, %d], "
 					"MM2S_portNo: %d, S2MM_portNo: %d\n",
 					routePath->source.Col, routePath->source.Row,
 					routePath->destination.Col, routePath->destination.Row,
@@ -1262,23 +1262,23 @@ void XAie_DumpRoutingSwitchInfo(XAie_RoutingInstance *routingInstance,
 			XAie_RoutingStep *step = routePath->nextStep;
 			uint16_t stepCount = 0;
 			while (step != NULL) {
-				printf("\t------------------------------------------------\n");
-				printf("\t| Step: %d\n", stepCount);
-				printf("\t| Source Tile: [%d, %d] \n",
+				XAIE_DBG("\t------------------------------------------------\n");
+				XAIE_DBG("\t| Step: %d\n", stepCount);
+				XAIE_DBG("\t| Source Tile: [%d, %d] \n",
 					step->sourceTile.Col, step->sourceTile.Row);
-				printf("\t| Source Stream: %d, Direction: %s\n",
+				XAIE_DBG("\t| Source Stream: %d, Direction: %s\n",
 					step->sourceStream,
 					_XAie_StrmSwPortTypeToString(step->source_direction));
-				printf("\t| Dest Stream: %d, Direction: %s\n",
+				XAIE_DBG("\t| Dest Stream: %d, Direction: %s\n",
 					step->destStream,
 					_XAie_StrmSwPortTypeToString(step->dest_direction));
-				printf("\t------------------------------------------------\n");
+				XAIE_DBG("\t------------------------------------------------\n");
 				step = step->next;
 				stepCount++;
 			}
 			currentRoute = currentRoute->nextRoute;
 		}
-		printf("*********************************************\n");
+		XAIE_DBG("*********************************************\n");
 	}
 }
 
@@ -1648,7 +1648,7 @@ static AieRC _XAie_performRoutingOnPath(XAie_RoutingInstance *routingInstance, X
 					routingInstance, SourceTile, DestinationTile, dirSource);
 
 			if (sourceStream == -1 || destStream == -1) {
-				/* Adding printf statement to print the command with actual values
+				/* Adding XAIE_DBG statement to print the command with actual values
 				 * */
 				XAIE_ERROR("\n XAie_StrmConnCctEnable cannot be programmed between"
 					" [%d %d] and [%d %d] due to unavailable stream ports. "
@@ -1669,7 +1669,7 @@ static AieRC _XAie_performRoutingOnPath(XAie_RoutingInstance *routingInstance, X
 					CoreConstraintPerCore[SourceTile.Col][SourceTile.Row];
 			CurrentTileconstraint->isAutoConfigured = true;
 
-			/* Adding printf statement to print the command with actual values */
+			/* Adding XAIE_DBG statement to print the command with actual values */
 			XAIE_DBG("\n [COMMAND] XAie_StrmConnCctEnable({%d,%d}, %s, %d, %s, %d)\n",
 					SourceTile.Col, SourceTile.Row,
 					_XAie_StrmSwPortTypeToString(portSource),
@@ -2215,7 +2215,7 @@ AieRC XAie_RouteDmaWait(XAie_RoutingInstance *routingInstance, XAie_LocType sour
 
 	u8 destPendingBDCount = 5;
 	while (destPendingBDCount) {
-		printf("Pending BD (%d) on port %d. Source {%d, %d}, Destination {%d, %d}\n",
+		XAIE_DBG("Pending BD (%d) on port %d. Source {%d, %d}, Destination {%d, %d}\n",
 				destPendingBDCount, destChannelID, sourcetile.Col,
 				sourcetile.Row, tile.Col, tile.Row);
 		XAie_DmaGetPendingBdCount(routingInstance->DeviceInstance, tile,
