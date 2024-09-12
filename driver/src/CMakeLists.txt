@@ -161,6 +161,10 @@ collect (PROJECT_LIB_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/util/xaie_util_events.
 collect (PROJECT_LIB_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/util/xaie_util_status.c")
 collect (PROJECT_LIB_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/util/xaie_util_status.h")
 
+#routing
+collect (PROJECT_LIB_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/routing/xaie_routing.c")
+collect (PROJECT_LIB_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/routing/xaie_routing.h")
+
 collector_list (_sources PROJECT_LIB_SOURCES)
 collector_list (_headers PROJECT_LIB_HEADERS)
 
