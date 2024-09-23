@@ -41,6 +41,8 @@ AieRC XAie_ReadTimer(XAie_DevInst *DevInst, XAie_LocType Loc,
 		XAie_ModuleType Module, u64 *TimerVal);
 AieRC XAie_WaitCycles(XAie_DevInst *DevInst, XAie_LocType Loc,
 		XAie_ModuleType Module, u64 CycleCnt);
+AieRC XAie_SyncTimerWithTwoBcstChannel(XAie_DevInst *DevInst, u8 BcastChannelId1,
+		u8 BcastChannelId2);
 AieRC XAie_SyncTimer(XAie_DevInst *DevInst, u8 BcastChannelId);
 
 #endif		/* end of protection macro */
