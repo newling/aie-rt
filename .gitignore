@@ -1,0 +1,9 @@
+#Ignore these file extensions
+*.a
+*.o
+*.so
+*.so.*
+
+#Ignore these directories
+/driver/include
+/driver/internal
