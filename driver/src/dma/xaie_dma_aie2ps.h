@@ -27,6 +27,11 @@
 /***************************** Include Files *********************************/
 #include "xaiegbl.h"
 
+typedef enum { XAIE_UC_MODULE__DMA_DIR__DM2MM,
+	       XAIE_UC_MODULE__DMA_DIR__MM2DM,
+	       XAIE_UC_MODULE__DMA_DIR__MAX
+} UcDmaDir;
+
 /************************** Function Prototypes  *****************************/
 AieRC _XAie2PS_MemTileDmaWriteBd(XAie_DevInst *DevInst, XAie_DmaDesc *DmaDesc,
 		XAie_LocType Loc, u8 BdNum);

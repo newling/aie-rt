@@ -34,6 +34,10 @@
 /**************************** Type Definitions *******************************/
 #define XAIE_ERROR_BROADCAST_ID			0x0U
 #define XAIE_ERROR_BROADCAST_MASK		0x1U
+
+#define XAIE_ERROR_BROADCAST_ID_UC_EVENT	0x1U
+#define XAIE_ERROR_BROADCAST_ID_USER_EVENT1	0x2U
+
 #define XAIE_ERROR_SHIM_INTR_ID			0x10U
 #define XAIE_ERROR_SHIM_INTR_MASK		0x10000U
 #define XAIE_ERROR_NPI_INTR_ID			0x1U

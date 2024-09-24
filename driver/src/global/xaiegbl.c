@@ -52,9 +52,11 @@
 /************************** Variable Definitions *****************************/
 extern XAie_TileMod AieMod[XAIEGBL_TILE_TYPE_MAX];
 extern XAie_TileMod AieMlMod[XAIEGBL_TILE_TYPE_MAX];
+extern XAie_TileMod Aie2PSMod[XAIEGBL_TILE_TYPE_MAX];
 
 extern XAie_DeviceOps AieDevOps;
 extern XAie_DeviceOps AieMlDevOps;
+extern XAie_DeviceOps Aie2PSDevOps;
 
 extern u8 XAieDevType;
 
@@ -64,6 +66,9 @@ extern u8 XAieDevType;
 #elif XAIE_DEV_SINGLE_GEN == XAIE_DEV_GEN_AIE
 #define XAIE_DEV_SINGLE_MOD AieMod
 #define XAIE_DEV_SINGLE_DEVOPS AieDevOps
+#elif XAIE_DEV_SINGLE_GEN == XAIE_DEV_GEN_AIE2PS
+#define XAIE_DEV_SINGLE_MOD Aie2PSMod
+#define XAIE_DEV_SINGLE_DEVOPS Aie2PSDevOps
 #else
 #ifdef XAIE_DEV_SINGLE_GEN
 #error "Unsupported device defined."
@@ -159,6 +164,10 @@ AieRC XAie_CfgInitialize(XAie_DevInst *InstPtr, XAie_Config *ConfigPtr)
 		InstPtr->DevProp.DevGen = XAIE_DEV_GEN_AIE;
 		InstPtr->DevOps = &AieDevOps;
 		XAieDevType = (u8)ConfigPtr->AieGen;
+	} else if(ConfigPtr->AieGen == XAIE_DEV_GEN_AIE2PS) {
+		InstPtr->DevProp.DevMod = Aie2PSMod;
+		InstPtr->DevProp.DevGen = XAIE_DEV_GEN_AIE2PS;
+		InstPtr->DevOps = &Aie2PSDevOps;
 #endif
 	} else {
 		XAIE_ERROR("Invalid device\n",
@@ -205,8 +214,8 @@ AieRC XAie_CfgInitialize(XAie_DevInst *InstPtr, XAie_Config *ConfigPtr)
 *
 * This is the API to initialize the AI engine soft partition. It will initialize the
 * AI engine partition hardware.
-*           Soft parition is like a subset of a partition. It is same as the partition
-	        but isolation will not be there in the boundary. Isolation will be there only
+*	   Soft parition is like a subset of a partition. It is same as the partition
+		but isolation will not be there in the boundary. Isolation will be there only
 			on device parititon.
 
 * @param	DevInst: Global AIE device instance pointer.
@@ -350,7 +359,7 @@ AieRC XAie_PartitionTeardown(XAie_DevInst *DevInst)
 *
 * The API clears partition context
 *
-* @param        DevInst: Global AIE device instance pointer.
+* @param	DevInst: Global AIE device instance pointer.
 *
 * @return       XAIE_OK on success and error code on failure.
 *
@@ -800,7 +809,7 @@ AieRC XAie_MemDetach(XAie_MemInst *MemInst)
 * should be called before calling elf loader to disable ECC. ECC configuration
 * is done from elf loader.
 *
-* @param        DevInst: Device Instance
+* @param	DevInst: Device Instance
 *
 * @return       XAIE_OK on success
 *
@@ -823,7 +832,7 @@ AieRC XAie_TurnEccOff(XAie_DevInst *DevInst)
 * This API enables the ECC flag in the Device Instance of the partition. ECC
 * configuration is done from elf loader.
 *
-* @param        DevInst: Device Instance
+* @param	DevInst: Device Instance
 *
 * @return       XAIE_OK on success
 *

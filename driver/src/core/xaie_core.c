@@ -641,7 +641,7 @@ AieRC XAie_CoreReadDoneBit(XAie_DevInst *DevInst, XAie_LocType Loc,
 * @param	DevInst: Device Instance
 * @param	Loc: Location of the AIE tile.
 * @param	CoreStatus: Pointer to store the status from the core status
-                register.
+		register.
 * @return	XAIE_OK on success, Error code on failure.
 *
 * @note		None.
@@ -874,12 +874,12 @@ AieRC XAie_CoreConfigureEnableEvent(XAie_DevInst *DevInst, XAie_LocType Loc,
  * This API writes to the Error Halt Event register to halt the core
  * bit.
  *
- * @param        DevInst: Device Instance
- * @param        Loc: Location of the AIE tile.
- * @param        Event: Event to halt the aie core
+ * @param	DevInst: Device Instance
+ * @param	Loc: Location of the AIE tile.
+ * @param	Event: Event to halt the aie core
  * @return       XAIE_OK on success, Error code on failure.
  *
- * @note         None.
+ * @note	 None.
  *
  ******************************************************************************/
 AieRC XAie_CoreConfigureErrorHaltEvent(XAie_DevInst *DevInst, XAie_LocType Loc,
@@ -1004,18 +1004,16 @@ AieRC XAie_ClearCoreDisableEventOccurred(XAie_DevInst *DevInst,
 * This API configures the core accumulator control register to specify the
 * direction of cascade stream.
 *
-* @param       DevInst: Device Instance
-* @param       Loc: Location of the aie tile.
-* @param       InDir: Input direction. Valid values: NORTH, WEST
-* @param       OutDir: Output direction. Valid values: SOUTH, EAST
+* @param	DevInst: Device Instance
+* @param	Loc: Location of the aie tile.
+* @param	InDir: Input direction. Valid values: NORTH, WEST
+* @param	OutDir: Output direction. Valid values: SOUTH, EAST
 *
-* @return      XAIE_OK on success, Error code on failure.
-*
-* @note                None.
+* @return	XAIE_OK on success, Error code on failure.
 *
 ******************************************************************************/
 AieRC XAie_CoreConfigAccumulatorControl(XAie_DevInst *DevInst,
-               XAie_LocType Loc, StrmSwPortType InDir, StrmSwPortType OutDir)
+	       XAie_LocType Loc, StrmSwPortType InDir, StrmSwPortType OutDir)
 {
 	u8 TileType;
 	const XAie_CoreMod *CoreMod;
@@ -1156,6 +1154,81 @@ AieRC XAie_CoreProcessorBusDisable(XAie_DevInst *DevInst, XAie_LocType Loc)
 	return _XAie_CoreProcessorBusConfig(DevInst, Loc, XAIE_DISABLE);
 }
 
+#ifdef XAIE_FEATURE_UC_ENABLE
+/*****************************************************************************/
+/*
+*
+* This API wakes uc core up.
+*
+* @param	DevInst: Device Instance
+* @param	Loc: Location of the shim tile.
+*
+* @return	XAIE_OK on success, Error code on failure.
+*
+* @note		None.
+*
+******************************************************************************/
+AieRC XAie_CoreUcWakeUp(XAie_DevInst *DevInst, XAie_LocType Loc)
+{
+	u8 TType;
+	const struct XAie_UcMod *UcMod;
+
+	if(DevInst == XAIE_NULL) {
+		XAIE_ERROR("Invalid Device Instance\n");
+		return XAIE_INVALID_ARGS;
+	}
+
+	TType = DevInst->DevOps->GetTTypefromLoc(DevInst, Loc);
+	if(_XAie_IsUcModulePresent(DevInst, TType) == 0U) {
+		XAIE_ERROR("Invalid Tile Type\n");
+		return XAIE_INVALID_TILE;
+	}
+
+	UcMod = DevInst->DevProp.DevMod[TType].UcMod;
+	if(UcMod == XAIE_NULL) {
+		return XAIE_ERR;
+	}
+
+	return UcMod->Wakeup(DevInst, Loc, UcMod);
+}
+
+/*****************************************************************************/
+/*
+*
+* This API puts uc core to sleep.
+*
+* @param	DevInst: Device Instance
+* @param	Loc: Location of the shim tile.
+*
+* @return	XAIE_OK on success, Error code on failure.
+*
+* @note		None.
+*
+******************************************************************************/
+AieRC XAie_CoreUcSleep(XAie_DevInst *DevInst, XAie_LocType Loc)
+{
+	u8 TType;
+	const struct XAie_UcMod *UcMod;
+
+	if(DevInst == XAIE_NULL) {
+		XAIE_ERROR("Invalid Device Instance\n");
+		return XAIE_INVALID_ARGS;
+	}
+
+	TType = DevInst->DevOps->GetTTypefromLoc(DevInst, Loc);
+	if(_XAie_IsUcModulePresent(DevInst, TType) == 0U) {
+		XAIE_ERROR("Invalid Tile Type\n");
+		return XAIE_INVALID_TILE;
+	}
+
+	UcMod = DevInst->DevProp.DevMod[TType].UcMod;
+	if(UcMod == XAIE_NULL) {
+		return XAIE_ERR;
+	}
+
+	return UcMod->Sleep(DevInst, Loc, UcMod);
+}
+#endif /*XAIE_FEATURE_UC_ENABLE*/
 #endif /* XAIE_FEATURE_CORE_ENABLE */
 
 /** @} */

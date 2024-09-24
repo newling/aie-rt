@@ -138,6 +138,13 @@ AieRC XAie_ClearCoreDisableEventOccurred(XAie_DevInst *DevInst,
 		XAie_LocType Loc);
 AieRC XAie_CoreProcessorBusEnable(XAie_DevInst *DevInst, XAie_LocType Loc);
 AieRC XAie_CoreProcessorBusDisable(XAie_DevInst *DevInst, XAie_LocType Loc);
-
-#endif		/* end of protection macro */
+#ifdef XAIE_FEATURE_UC_ENABLE
+AieRC XAie_CoreUcWakeUp(XAie_DevInst *DevInst, XAie_LocType Loc);
+AieRC XAie_CoreUcSleep(XAie_DevInst *DevInst, XAie_LocType Loc);
+AieRC XAie_LoadUc(XAie_DevInst *DevInst, XAie_LocType Loc,
+		  const char *ElfPtr);
+AieRC XAie_LoadUcMem(XAie_DevInst *DevInst, XAie_LocType Loc,
+				     const unsigned char* ElfMem);
+#endif	/*XAIE_FEATURE_UC_ENABLE*/
+#endif	/* end of protection macro */
 /** @} */

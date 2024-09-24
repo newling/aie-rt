@@ -1361,7 +1361,7 @@ AieRC XAie_DmaGetPendingBdCount(XAie_DevInst *DevInst, XAie_LocType Loc,
 * @param	Loc: Location of AIE Tile
 * @param	ChNum: Channel number of the DMA.
 * @param	Dir: Direction of the DMA Channel. (MM2S or S2MM)
-* @param        Status - Value of Channel Status Register
+* @param	Status - Value of Channel Status Register
 *
 * @return	XAIE_OK on success, Error code on failure.
 *
@@ -1409,7 +1409,7 @@ AieRC XAie_DmaGetChannelStatus(XAie_DevInst *DevInst, XAie_LocType Loc,
 * @param	Loc: Location of AIE Tile
 * @param	ChNum: Channel number of the DMA.
 * @param	Dir: Direction of the DMA Channel. (MM2S or S2MM)
-* @param        TimeOutUs - Minimum timeout value in micro seconds.
+* @param	TimeOutUs - Minimum timeout value in micro seconds.
 *
 * @return	XAIE_OK on success, Error code on failure.
 *
@@ -2270,5 +2270,54 @@ AieRC XAie_DmaTlastDisable(XAie_DmaDesc *DmaDesc)
 	return XAIE_OK;
 }
 
+/*****************************************************************************/
+/**
+*
+* This API configure the pad value for DMA MM2S Channel.
+*
+* @param	DevInst: Device Instance.
+* @param	Loc: Location of AIE Tile.
+* @param	ChNum: DMA MM2S Channel number.
+* @param	PadValue: 32-bit pad value.
+*
+* @return	XAIE_OK on success, Error code on failure.
+*
+******************************************************************************/
+AieRC XAie_DmaSetPadValue(XAie_DevInst *DevInst, XAie_LocType Loc, u8 ChNum,
+		u32 PadValue)
+{
+	const XAie_DmaMod *DmaMod;
+	u8 TileType;
+	u64 Addr;
+
+	if((DevInst == XAIE_NULL) ||
+			(DevInst->IsReady != XAIE_COMPONENT_IS_READY)) {
+		XAIE_ERROR("Invalid Device Instance\n");
+		return XAIE_INVALID_ARGS;
+	}
+
+	TileType = DevInst->DevOps->GetTTypefromLoc(DevInst, Loc);
+	if(TileType == XAIEGBL_TILE_TYPE_SHIMPL) {
+		XAIE_ERROR("Invalid Tile Type\n");
+		return XAIE_INVALID_TILE;
+	}
+
+	DmaMod = DevInst->DevProp.DevMod[TileType].DmaMod;
+	if(DmaMod->PadValueBase == XAIE_FEATURE_UNAVAILABLE) {
+		XAIE_ERROR("Cannot configure pad value for this"
+				" architecture\n");
+		return XAIE_FEATURE_NOT_SUPPORTED;
+	}
+
+	if(ChNum > DmaMod->NumChannels) {
+		XAIE_ERROR("Invalid Channel number\n");
+		return XAIE_INVALID_CHANNEL_NUM;
+	}
+
+	Addr = _XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col) +
+		DmaMod->PadValueBase + ChNum * 0x4U;
+
+	return XAie_Write32(DevInst, Addr, PadValue);
+}
 #endif /* XAIE_FEATURE_DMA_ENABLE */
 /** @} */

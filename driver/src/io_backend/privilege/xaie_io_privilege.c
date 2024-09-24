@@ -14,7 +14,7 @@
 * <pre>
 * MODIFICATION HISTORY:
 *
-* Ver   Who     Date        Changes
+* Ver   Who     Date	Changes
 * ----- ------  --------    ---------------------------------------------------
 * 1.0   Wendy 05/17/2021  Initial creation
 *
@@ -218,8 +218,7 @@ static AieRC _XAie_PrivilegeSetBlockAxiMmNsuErr(XAie_DevInst *DevInst,
 *		This function is internal to this file.
 *
 ******************************************************************************/
-static
-AieRC _XAie_PrivilegeSetPartBlockAxiMmNsuErr(XAie_DevInst *DevInst,
+static AieRC _XAie_PrivilegeSetPartBlockAxiMmNsuErr(XAie_DevInst *DevInst,
 		u8 BlockSlvEnable, u8 BlockDecEnable)
 {
 	AieRC RC = XAIE_OK;
@@ -238,6 +237,89 @@ AieRC _XAie_PrivilegeSetPartBlockAxiMmNsuErr(XAie_DevInst *DevInst,
 			XAIE_ERROR("Failed to set SHIM NOC AXI MM Errors.");
 			return RC;
 		}
+	}
+
+	return RC;
+}
+
+/*****************************************************************************/
+/**
+*
+* This API sets the NMU switch configuration for a given SHIM South tile
+*
+* @param	DevInst: Device Instance
+* @param	Loc: Location of SHIM south tile
+* @param	FwdEastEnable: Configuration of switch for NMU 0. XAIE_ENABLE
+*			      to forward NOC to east neighbor. XAIE_DISABLE to
+*			      connect NOC to local NMU 0.
+* @param	FromWestEnable: Configuration of switch for NMU 1. XAIE_ENABLE
+*			       to have NOC accept from west neighbor.
+*			       XAIE_DISABLE to have NOC connected to local NMU
+*			       1.
+*
+* @return       XAIE_OK on success, error code on failure
+******************************************************************************/
+static AieRC _XAie_PrivilegeSetNmuSwitch(XAie_DevInst *DevInst,
+		XAie_LocType Loc, u8 FwdEastEnable, u8 FromWestEnable)
+{
+	const XAie_PlIfMod *PlIfMod;
+	u64 RegAddr;
+	u8 TileType;
+	u32 FldVal;
+
+	TileType = DevInst->DevOps->GetTTypefromLoc(DevInst, Loc);
+	if (TileType != XAIEGBL_TILE_TYPE_SHIMNOC) {
+		XAIE_ERROR("Invalid Tile Type.");
+		return XAIE_ERR;
+	}
+
+	PlIfMod = DevInst->DevProp.DevMod[TileType].PlIfMod;
+	RegAddr = PlIfMod->ShimNocNmuSwitchOff +
+			_XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col);
+	FldVal = XAie_SetField(FwdEastEnable,
+			PlIfMod->ShimNocNmuSwitch0.Lsb,
+			PlIfMod->ShimNocNmuSwitch0.Mask);
+	FldVal |= XAie_SetField(FromWestEnable,
+			PlIfMod->ShimNocNmuSwitch1.Lsb,
+			PlIfMod->ShimNocNmuSwitch1.Mask);
+
+	return XAie_Write32(DevInst, RegAddr, FldVal);
+}
+
+/*****************************************************************************/
+/**
+*
+* This API sets the partitions NMU switch configuration for all SHIM NOCs in
+* the full partition.
+*
+* @param	DevInst: Device Instance
+*
+* @return       XAIE_OK on success, error code on failure
+******************************************************************************/
+static AieRC _XAie_PrivilegeSetPartNmuSwitch(XAie_DevInst *DevInst)
+{
+	AieRC RC = XAIE_OK;
+
+	if (DevInst->StartCol != 0U) {
+		/*
+		 * The only NMU switches that need to be configured
+		 * are in absoulute column 0 and 1.
+		 */
+		XAIE_DBG("Partition does not have start column 0, not configuring NMU switches");
+		return XAIE_OK;
+	}
+
+	RC = _XAie_PrivilegeSetNmuSwitch(DevInst, XAie_TileLoc(0U, DevInst->ShimRow),
+			XAIE_ENABLE, XAIE_DISABLE);
+	if (RC != XAIE_OK) {
+		XAIE_ERROR("Failed to set switch configuration for column 0");
+		return RC;
+	}
+	RC = _XAie_PrivilegeSetNmuSwitch(DevInst, XAie_TileLoc(1U, DevInst->ShimRow),
+			XAIE_DISABLE, XAIE_ENABLE);
+	if (RC != XAIE_OK) {
+		XAIE_ERROR("Failed to set switch configuration for column 1");
+		return RC;
 	}
 
 	return RC;
@@ -411,6 +493,15 @@ AieRC _XAie_PrivilegeInitPart(XAie_DevInst *DevInst, XAie_PartInitOpts *Opts)
 		if(RC != XAIE_OK) {
 			_XAie_PrivilegeSetPartProtectedRegs(DevInst, XAIE_DISABLE);
 			return RC;
+		}
+
+		if(DevInst->DevProp.DevGen == XAIE_DEV_GEN_AIE2PS) {
+			RC = _XAie_PrivilegeSetPartNmuSwitch(DevInst);
+			if(RC != XAIE_OK) {
+				_XAie_PrivilegeSetPartProtectedRegs(DevInst,
+						XAIE_DISABLE);
+				return RC;
+			}
 		}
 	}
 
@@ -655,7 +746,231 @@ AieRC _XAie_PrivilegeSetColumnClk(XAie_DevInst *DevInst,
 
 	return RC;
 }
+
+/*****************************************************************************/
+/**
+ * *
+ * * This API writes to the Dma Pause register of noc to pause/resume the issuing of
+ * * new AXI-MM commands on dma channel
+ * *
+ * * @param	DevInst: Device Instance.
+ * * @param	Loc: Location of the Shim tile.
+ * * @param	ChNum: Channel number of dma(0 or 1)
+ * * @param	Dir: s2mm or mm2s
+ * * @param	Pause: Set 1 to pause or 0 to resume
+ * *
+ * * @return	XAIE_OK on success, Error code on failure.
+ *
+ * ******************************************************************************/
+AieRC XAie_NocDmaPause(XAie_DevInst *DevInst, XAie_LocType *Loc,
+		u8 ChNum, XAie_DmaDirection Dir, u8 Pause)
+{
+	AieRC RC;
+	volatile   u64 RegAddr;
+	volatile   u32 Mask, FldVal, Lsb;
+	const struct XAie_DmaMod *NocDma = NULL;
+
+	if (DevInst == NULL) {
+		XAIE_ERROR("Invalid Device Instance\n");
+		return XAIE_ERR;
+	}
+
+	NocDma  = DevInst->DevProp.DevMod[XAIEGBL_TILE_TYPE_SHIMNOC].DmaMod;
+	if (NocDma == NULL) {
+		XAIE_ERROR("Invalid Nocmod\n");
+		return XAIE_ERR;
+	}
+
+	switch (ChNum) {
+	case 0/*Ch0*/:
+		switch (Dir) {
+		case DMA_S2MM:
+			Mask = NocDma->NocDmaPauseReg->S2mm_0.Mask;
+			Lsb =  NocDma->NocDmaPauseReg->S2mm_0.Lsb;
+			break;
+		case DMA_MM2S:
+			Mask = NocDma->NocDmaPauseReg->Mm2s_0.Mask;
+			Lsb = NocDma->NocDmaPauseReg->Mm2s_0.Lsb;
+			break;
+		default:
+			XAIE_ERROR("Invalid dma direction selected\n");
+		}
+		break;
+	case 1/*Ch1*/:
+	switch (Dir) {
+		case DMA_S2MM:
+			Mask = NocDma->NocDmaPauseReg->S2mm_1.Mask;
+			Lsb = NocDma->NocDmaPauseReg->S2mm_1.Lsb;
+			break;
+		case DMA_MM2S:
+			Mask = NocDma->NocDmaPauseReg->Mm2s_1.Mask;
+			Lsb = NocDma->NocDmaPauseReg->Mm2s_1.Lsb;
+			break;
+		default:
+			XAIE_ERROR("Invalid dma direction selected\n");
+	}
+	break;
+	default:
+		XAIE_ERROR("Invalid dma channel selected\n");
+		return XAIE_ERR;
+	}
+
+	FldVal = XAie_SetField(Pause, Lsb, Mask);
+
+	RC = _XAie_PrivilegeSetPartProtectedRegs(DevInst, XAIE_ENABLE);
+	if(RC != XAIE_OK) {
+		XAIE_ERROR("Failed to enable the"
+				"partition protected registers.\n");
+		return RC;
+	}
+
+	if(Loc == XAIE_NULL) {
+		for(u32 col = 0; col < DevInst->NumCols; col++) {
+			XAie_LocType Loc = XAie_TileLoc(col, 0);
+			RegAddr = NocDma->NocDmaPauseReg->RegOff +
+				_XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col);
+			XAie_MaskWrite32(DevInst, RegAddr, Mask, FldVal);
+		}
+	} else {
+		RegAddr = NocDma->NocDmaPauseReg->RegOff +
+			_XAie_GetTileAddr(DevInst, Loc->Row, Loc->Col);
+		XAie_MaskWrite32(DevInst, RegAddr, Mask, FldVal);
+	}
+
+	RC = _XAie_PrivilegeSetPartProtectedRegs(DevInst, XAIE_DISABLE);
+	if(RC != XAIE_OK) {
+		XAIE_ERROR("Failed to disable the "
+				"partition protected registers. \n");
+		return RC;
+	}
+
+	return XAIE_OK;
+}
+
+/*****************************************************************************/
+/*
+ * *
+ * * This API writes to the Dma Pause register of uc to pause/resume the issuing of
+ * * new AXI-MM commands on MM2DM/DM2MM
+ * *
+ * * @param	DevInst: Device Instance
+ * * @param	Loc: Location of the Shim tile.
+ * * @param	Channel: DM2MM or MM2DM
+ * * @param	Pause: Set 1 to pause or 0 to resume
+ * *
+ * * @return	XAIE_OK on success, Error code on failure.
+ *
+ * ******************************************************************************/
+AieRC XAie_UcDmaPause(XAie_DevInst *DevInst, XAie_LocType *Loc,
+		UcDmaDir Dir, u8 Pause)
+{
+	u64 RegAddr;
+	AieRC RC = XAIE_OK;
+	u32 Mask, FldVal, Lsb;
+	const struct XAie_UcMod *UcDma = NULL;
+
+	if (DevInst == NULL) {
+		XAIE_ERROR("Invalid Device Instance\n");
+		return XAIE_ERR;
+	}
+
+	UcDma = DevInst->DevProp.DevMod[XAIEGBL_TILE_TYPE_SHIMNOC].UcMod;
+	if (UcDma == NULL) {
+		XAIE_ERROR("Invalid Ucmod\n");
+		return XAIE_ERR;
+	}
+
+	switch (Dir) {
+	case XAIE_UC_MODULE__DMA_DIR__DM2MM:
+		Mask = UcDma->UcDmaPauseReg->Dm2mm.Mask;
+		Lsb = UcDma->UcDmaPauseReg->Dm2mm.Lsb;
+		break;
+	case XAIE_UC_MODULE__DMA_DIR__MM2DM:
+		Mask = UcDma->UcDmaPauseReg->Mm2dm.Mask;
+		Lsb = UcDma->UcDmaPauseReg->Mm2dm.Lsb;
+		break;
+	default:
+		XAIE_ERROR("Invalid DMA direction\n");
+		return XAIE_INVALID_DMA_DIRECTION;
+	}
+
+	FldVal = XAie_SetField(Pause, Lsb, Mask);
+
+	RC = _XAie_PrivilegeSetPartProtectedRegs(DevInst, XAIE_ENABLE);
+	if(RC != XAIE_OK) {
+		XAIE_ERROR("Failed to enable the"
+				" partition protected registers.\n");
+		return RC;
+	}
+
+	if(Loc == XAIE_NULL) {
+		for(u32 col = 0; col < DevInst->NumCols; col++) {
+			XAie_LocType Loc = XAie_TileLoc(col, 0);
+			RegAddr = UcDma->UcDmaPauseReg->RegOff +
+				_XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col);
+			XAie_MaskWrite32(DevInst, RegAddr, Mask, FldVal);
+		}
+	} else {
+		RegAddr = UcDma->UcDmaPauseReg->RegOff +
+			_XAie_GetTileAddr(DevInst, Loc->Row, Loc->Col);
+		XAie_MaskWrite32(DevInst, RegAddr, Mask, FldVal);
+	}
+
+	RC = _XAie_PrivilegeSetPartProtectedRegs(DevInst, XAIE_DISABLE);
+	if(RC != XAIE_OK) {
+		XAIE_ERROR("Failed to disable the "
+				"partition protected registers.\n");
+		return RC;
+	}
+
+	return XAIE_OK;
+}
+
+/*****************************************************************************/
+/*
+ * *
+ * * This API sets the AXIMM Isolation of the partition
+ * *
+ * * @param	DevInst: Device Instance
+ * * @param	IsolationFlags: Directions to block AXIMM
+ *			- XAIE_INIT_ISOLATION: Block east and west
+ *			- XAIE_INIT_WEST: Block west
+ *			- XAIE_INIT_EAST: Block east and west
+ * *
+ * * @return	XAIE_OK on success, Error code on failure.
+ *
+ * ******************************************************************************/
+AieRC XAie_PrivilegeSetAxiMMIsolation(XAie_DevInst *DevInst, u8 IsolationFlags)
+{
+	AieRC RC;
+
+	RC = _XAie_PrivilegeSetPartProtectedRegs(DevInst, XAIE_ENABLE);
+	if(RC != XAIE_OK) {
+		XAIE_ERROR("Failed to enable the"
+				"partition protected registers.\n");
+		return RC;
+	}
+
+	if(DevInst->DevProp.DevGen == XAIE_DEV_GEN_AIE2PS) {
+		RC = DevInst->DevOps->SetAxiMMIsolation(DevInst, IsolationFlags);
+		if(RC!= XAIE_OK) {
+			XAIE_ERROR("Failed to set the AxiMM Isolation\n");
+			return RC;
+		}
+	}
+
+	RC = _XAie_PrivilegeSetPartProtectedRegs(DevInst, XAIE_DISABLE);
+	if(RC != XAIE_OK) {
+		XAIE_ERROR("Failed to disable the "
+				"partition protected registers.\n");
+		return RC;
+	}
+
+	return RC;
+}
+
 #else /* XAIE_FEATURE_PRIVILEGED_ENABLE */
+
 AieRC _XAie_PrivilegeInitPart(XAie_DevInst *DevInst, XAie_PartInitOpts *Opts)
 {
 	(void)DevInst;
@@ -683,6 +998,34 @@ AieRC _XAie_PrivilegeSetColumnClk(XAie_DevInst *DevInst,
 {
 	(void)DevInst;
 	(void)Args;
+	return XAIE_FEATURE_NOT_SUPPORTED;
+}
+AieRC XAie_UcDmaPause(XAie_DevInst *DevInst, XAie_LocType *Loc,
+		UcDmaDir_enum Dir, u8 Pause)
+{
+	(void)DevInst;
+	(void)Loc;
+	(void)Dir;
+	(void)Pause;
+	return XAIE_FEATURE_NOT_SUPPORTED;
+}
+
+AieRC XAie_NocDmaPause(XAie_DevInst *DevInst, XAie_LocType *Loc,
+		u8 ChNum, XAie_DmaDirection Dir, u8 Pause)
+{
+	(void)DevInst;
+	(void)Loc;
+	(void)ChNum;
+	(void)Dir;
+	(void)Pause;
+	return XAIE_FEATURE_NOT_SUPPORTED;
+}
+
+AieRC XAie_PrivilegeSetAxiMMIsolation(XAie_DevInst *DevInst,
+		u8 IsolationFlags)
+{
+	(void)DevInst;
+	(void)IsolationFlags;
 	return XAIE_FEATURE_NOT_SUPPORTED;
 }
 #endif /* XAIE_FEATURE_PRIVILEGED_ENABLE && !XAIE_FEATURE_LITE */
