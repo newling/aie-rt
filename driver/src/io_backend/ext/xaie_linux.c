@@ -205,7 +205,7 @@ static AieRC XAie_LinuxIO_Finish(void *IOInst)
 *******************************************************************************/
 static AieRC XAie_LinuxIO_GetPartitionList(XAie_DevInst *DevInst)
 {
-	AieRC RC;
+	int Ret;
 	int AieDevFd, cnt = 0;
 	struct aie_part_fd_list aiepart_list;
 	struct aie_partition_query PartQuery;
@@ -218,8 +218,8 @@ static AieRC XAie_LinuxIO_GetPartitionList(XAie_DevInst *DevInst)
 	}
 
 	PartQuery.partitions = NULL;
-	RC = ioctl(AieDevFd, AIE_ENQUIRE_PART_IOCTL, &PartQuery);
-	if (RC < 0) {
+	Ret = ioctl(AieDevFd, AIE_ENQUIRE_PART_IOCTL, &PartQuery);
+	if (Ret < 0) {
 		XAIE_ERROR("Failed to get partitions count %d: %s\n",
 				errno, strerror(errno));
 		return XAIE_ERR;
@@ -238,8 +238,8 @@ static AieRC XAie_LinuxIO_GetPartitionList(XAie_DevInst *DevInst)
 		return XAIE_ERR;
 	}
 
-	RC = ioctl(AieDevFd, AIE_GET_PARTITION_FD_LIST_IOCTL, &aiepart_list);
-	if (RC < 0) {
+	Ret = ioctl(AieDevFd, AIE_GET_PARTITION_FD_LIST_IOCTL, &aiepart_list);
+	if (Ret < 0) {
 		XAIE_ERROR("Failed to get partition list %d: %s\n",
 				errno, strerror(errno));
 		return XAIE_ERR;

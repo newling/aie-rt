@@ -481,7 +481,7 @@ struct aie_rsc_user_stat_array {
 					      struct aie_partition_query)
 #define AIE_REQUEST_PART_IOCTL		_IOR(AIE_IOCTL_BASE, 0x2, \
 					     struct aie_partition_req)
-#define AIE_GET_PARTITION_FD_LIST_IOCTL      _IOWR(AIE_IOCTL_BASE, 0x1d, \
+#define AIE_GET_PARTITION_FD_LIST_IOCTL      _IOWR(AIE_IOCTL_BASE, 0x03, \
                                              struct aie_part_fd_list)
 
 /* AI engine partition IOCTL operations */
