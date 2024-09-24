@@ -48,7 +48,7 @@
 #define XAIE_LOCK_WITH_NO_VALUE		(-1)
 #define XAIE_PACKET_ID_MAX		0x1FU
 #define XAIE_PACKET_TYPE_MAX		0x7U
-#define XAIE_TILES_BITMAP_SIZE          32U
+#define XAIE_TILES_BITMAP_SIZE	  32U
 
 #define XAIE_TRANSACTION_ENABLE_AUTO_FLUSH	0b1U
 #define XAIE_TRANSACTION_DISABLE_AUTO_FLUSH	0b0U
@@ -208,11 +208,11 @@ typedef struct {
 
 /* This typedef captures partition information available in the kernel */
 typedef struct {
-        XAie_Range ColRange;
-        u32 PartitionId;
-        u32 Uid;
-        int PartitionFd;
-        XAie_List Node;
+	XAie_Range ColRange;
+	u32 PartitionId;
+	u32 Uid;
+	int PartitionFd;
+	XAie_List Node;
 }XAie_PartitionList;
 
 /*
@@ -252,6 +252,7 @@ typedef enum{
 	NORTH,
 	EAST,
 	TRACE,
+	UCTRLR,
 	SS_PORT_TYPE_MAX
 } StrmSwPortType;
 
@@ -476,6 +477,13 @@ typedef enum {
 	XAIE_RESETDISABLE,
 	XAIE_RESETENABLE,
 } XAie_Reset;
+
+/* This enum is used to identify the different types of memories in uc module */
+typedef enum {
+	XAIE_PROGRAM_MEMORY,
+	XAIE_PRIVATE_DATA_MEMORY,
+	XAIE_MODULE_DATA_MEMORY,
+} XAie_UcMemType;
 
 /* Data structure to capture lock id and value */
 typedef struct {
@@ -707,6 +715,27 @@ static inline XAie_LocType XAie_TileLoc(u8 col, u8 row)
 /*****************************************************************************/
 /**
 *
+* This routine is used to check if the shim tile has uc module.
+*
+* @param	DevInst: Device Instance.
+* @param	TileType: Type of the tile.
+*
+* @return       1 if uc module is present and 0 otherwise.
+*
+* @note	 Internal API only.
+*
+*******************************************************************************/
+static inline u8 _XAie_IsUcModulePresent(XAie_DevInst* DevInst, u8 TileType) {
+	if(DevInst->DevProp.DevGen == XAIE_DEV_GEN_AIE2PS &&
+			TileType == XAIEGBL_TILE_TYPE_SHIMNOC) {
+		return 1;
+	}
+	return 0;
+}
+
+/*****************************************************************************/
+/**
+*
 * This API setups the AI engine partition property in AI engine config
 *
 * @param	Config: XAie_Config structure.
@@ -881,7 +910,7 @@ static inline void XAie_SetupConfigPartProp(XAie_Config *ConfigPtr, u32 Nid,
 *
 *******************************************************************************/
 
-#define XAie_GetCol_BaseAddr(BaseAddr, StartCol, ColShift)              \
+#define XAie_GetCol_BaseAddr(BaseAddr, StartCol, ColShift)	      \
 	(BaseAddr + (StartCol << ColShift))
 
 #endif	/* end of protection macro */
