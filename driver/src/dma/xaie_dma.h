@@ -155,4 +155,6 @@ AieRC XAie_DmaSetPadValue(XAie_DevInst *DevInst, XAie_LocType Loc, u8 ChNum,
 		u32 PadValue);
 AieRC XAie_DmaGetChannelStatus(XAie_DevInst *DevInst, XAie_LocType Loc,
 		u8 ChNum, XAie_DmaDirection Dir, u32 *Status);
+AieRC XAie_DmaUpdateBdAddrOff(XAie_MemInst *MemInst, XAie_LocType Loc, u32 Offset,
+		u8 BdNum);
 #endif		/* end of protection macro */

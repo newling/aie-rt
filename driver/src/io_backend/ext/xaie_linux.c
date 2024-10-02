@@ -1085,6 +1085,54 @@ static AieRC XAie_LinuxMemDetach(XAie_MemInst *MemInst)
 /*****************************************************************************/
 /**
 *
+* This API updates the address in shim dma bd using the linux kernel driver.
+*
+* @param	IOInst: IO instance pointer
+* @param	Args: Shim dma arguments pointer.
+*
+* @return	XAIE_OK on success, Error code on failure.
+*
+* @note		Internal only.
+*		This function will update SHIM DMA BD with dmabuf.
+*		The address field in the DMA buffer descriptor is the offset to
+*		the start of the dmabuf specified by the memory object.
+*
+*******************************************************************************/
+static AieRC _XAie_LinuxIO_UpdateShimDmaBdAddrOff(void *IOInst,
+						 XAie_ShimDmaBdArgs *Args)
+{
+	XAie_LinuxMem *LinuxMemInst =
+		(XAie_LinuxMem *)Args->MemInst->BackendHandle;
+	XAie_LinuxIO *LinuxIOInst = (XAie_LinuxIO *)IOInst;
+	struct aie_dmabuf_bd_args ShimArgs;
+	int Ret;
+
+	if (LinuxMemInst == XAIE_NULL) {
+		XAIE_ERROR("Failed to configure shim dma bd, invalid bd MemInst.\n");
+		return XAIE_INVALID_ARGS;
+	}
+
+	ShimArgs.bd = Args->BdWords;
+	ShimArgs.loc.row = Args->Loc.Row;
+	ShimArgs.loc.col = Args->Loc.Col;
+	ShimArgs.bd_id = Args->BdNum;
+	ShimArgs.buf_fd = LinuxMemInst->BufferFd;
+
+	Ret = ioctl(LinuxIOInst->PartitionFd,
+		    AIE_UPDATE_SHIMDMA_DMABUF_BD_ADDR_IOCTL,
+		    &ShimArgs);
+	if (Ret < 0) {
+		XAIE_ERROR("Failed to update shim dma bd addr, %d: %s\n",
+			errno, strerror(errno));
+		return XAIE_ERR;
+	}
+
+	return XAIE_OK;
+}
+
+/*****************************************************************************/
+/**
+*
 * This is function to configure shim dma using the linux kernel driver.
 *
 * @param	IOInst: IO instance pointer
@@ -1682,6 +1730,8 @@ static AieRC XAie_LinuxIO_RunOp(void *IOInst, XAie_DevInst *DevInst,
 	switch(Op) {
 	case XAIE_BACKEND_OP_CONFIG_SHIMDMABD:
 		return _XAie_LinuxIO_ConfigShimDmaBd(IOInst, Arg);
+	case XAIE_BACKEND_OP_UPDATE_SHIM_DMA_BD_ADDR:
+		return _XAie_LinuxIO_UpdateShimDmaBdAddrOff(IOInst, Arg);
 	case XAIE_BACKEND_OP_REQUEST_TILES:
 		RC = _XAie_LinuxIO_RequestTiles(IOInst, Arg);
 		if(RC == XAIE_OK)

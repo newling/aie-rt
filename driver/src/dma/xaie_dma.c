@@ -2319,5 +2319,59 @@ AieRC XAie_DmaSetPadValue(XAie_DevInst *DevInst, XAie_LocType Loc, u8 ChNum,
 
 	return XAie_Write32(DevInst, Addr, PadValue);
 }
+
+/*****************************************************************************/
+/**
+* This API updates the address of the buffer descriptor in the dma module.
+*
+* @param	MemInst: Memory Instance
+* @param	Loc: Location of AIE Tile
+* @param	Offset: Buffer offset
+* @param	BdNum: Hardware BD number to be written to.
+*
+* @return	XAIE_OK on success, Error code on failure.
+*
+* @note		This API updates BD for linux specifically.
+******************************************************************************/
+AieRC XAie_DmaUpdateBdAddrOff(XAie_MemInst *MemInst, XAie_LocType Loc, u32 Offset,
+		u8 BdNum)
+{
+	const XAie_DmaMod *DmaMod;
+	XAie_ShimDmaBdArgs Args;
+	XAie_DevInst *DevInst;
+	u64 BdBaseAddr, Addr;
+	u8 TileType;
+
+	if(MemInst == XAIE_NULL) {
+		XAIE_ERROR("Invalid Memory Instance\n");
+		return XAIE_INVALID_ARGS;
+	}
+
+	DevInst = MemInst->DevInst;
+	TileType = DevInst->DevOps->GetTTypefromLoc(DevInst, Loc);
+	if(TileType != XAIEGBL_TILE_TYPE_SHIMNOC) {
+		XAIE_ERROR("Invalid Tile Type\n");
+		return XAIE_INVALID_TILE;
+	}
+
+	DmaMod = DevInst->DevProp.DevMod[TileType].DmaMod;
+	if(BdNum > DmaMod->NumBds) {
+		XAIE_ERROR("Invalid BD number\n");
+		return XAIE_INVALID_BD_NUM;
+	}
+	BdBaseAddr = (u64)(DmaMod->BaseAddr + BdNum * DmaMod->IdxOffset);
+	Addr = BdBaseAddr + XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col);
+
+	Args.NumBdWords = 1U;
+	Args.BdWords = &Offset;
+	Args.Loc = Loc;
+	Args.BdNum = BdNum;
+	Args.Addr = Addr;
+	Args.MemInst = MemInst;
+
+	return XAie_RunOp(DevInst, XAIE_BACKEND_OP_UPDATE_SHIM_DMA_BD_ADDR,
+			  (void *)&Args);
+}
+
 #endif /* XAIE_FEATURE_DMA_ENABLE */
 /** @} */
