@@ -1359,7 +1359,8 @@ AieRC XAie_EventEdgeControl(XAie_DevInst *DevInst, XAie_LocType Loc,
 	AieRC RC;
 	u32 FldVal;
 	u64 RegAddr;
-	u8 TileType, HwEvent;
+	u8 TileType;
+	u16 HwEvent;
 	const XAie_EvntMod *EvntMod;
 
 	if((DevInst == XAIE_NULL) ||
@@ -1603,7 +1604,7 @@ AieRC XAie_EventPCReset(XAie_DevInst *DevInst, XAie_LocType Loc, u8 PCEventId)
 *
 ******************************************************************************/
 AieRC XAie_EventLogicalToPhysicalConv(XAie_DevInst *DevInst, XAie_LocType Loc,
-		XAie_ModuleType Module, XAie_Events Event, u8 *HwEvent)
+		XAie_ModuleType Module, XAie_Events Event, u16 *HwEvent)
 {
 	AieRC RC;
 	u8 TileType;
@@ -1664,7 +1665,7 @@ AieRC XAie_EventLogicalToPhysicalConv(XAie_DevInst *DevInst, XAie_LocType Loc,
 *
 ******************************************************************************/
 AieRC XAie_EventPhysicalToLogicalConv(XAie_DevInst *DevInst, XAie_LocType Loc,
-		XAie_ModuleType Module, u8 HwEvent, XAie_Events *EnumEvent)
+		XAie_ModuleType Module, u16 HwEvent, XAie_Events *EnumEvent)
 {
 	AieRC RC;
 	u8 TileType;
@@ -1728,7 +1729,8 @@ AieRC XAie_EventReadStatus(XAie_DevInst *DevInst, XAie_LocType Loc,
 	AieRC RC;
 	u64 RegAddr;
 	u32 RegOff, RegVal;
-	u8 TileType, PhyEvent;
+	u8 TileType;
+	u16 PhyEvent;
 	const XAie_EvntMod *EvntMod;
 
 	if((Status == XAIE_NULL) || (DevInst == XAIE_NULL) ||

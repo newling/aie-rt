@@ -2344,4 +2344,25 @@ AieRC XAie_StatusDump(XAie_DevInst *DevInst, XAie_ColStatus *Status)
 	return (AieRC)RC;
 }
 
+/*****************************************************************************/
+/**
+*
+* This routine is used to check if the shim tile has uc module.
+*
+* @param	DevInst: Device Instance.
+* @param	TileType: Type of the tile.
+*
+* @return       1 if uc module is present and 0 otherwise.
+*
+* @note	 Internal API only.
+*
+*******************************************************************************/
+u8 _XAie_IsUcModulePresent(XAie_DevInst* DevInst, u8 TileType) {
+	if(DevInst->DevProp.DevGen == XAIE_DEV_GEN_AIE2PS &&
+			TileType == XAIEGBL_TILE_TYPE_SHIMNOC) {
+		return 1;
+	}
+	return 0;
+}
+
 /** @} */

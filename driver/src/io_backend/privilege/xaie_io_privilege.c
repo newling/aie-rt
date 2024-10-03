@@ -1001,7 +1001,7 @@ AieRC _XAie_PrivilegeSetColumnClk(XAie_DevInst *DevInst,
 	return XAIE_FEATURE_NOT_SUPPORTED;
 }
 AieRC XAie_UcDmaPause(XAie_DevInst *DevInst, XAie_LocType *Loc,
-		UcDmaDir_enum Dir, u8 Pause)
+		UcDmaDir Dir, u8 Pause)
 {
 	(void)DevInst;
 	(void)Loc;
