@@ -342,8 +342,8 @@ static AieRC _XAie_SStreamSwitchConfigureCct(XAie_DevInst *DevInst,
 	}
 
 	/* Compute absolute address and write to register */
-	MstrAddr = MstrOff + _XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col);
-	SlvAddr = SlvOff + _XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col);
+	MstrAddr = MstrOff + XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col);
+	SlvAddr = SlvOff + XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col);
 
 	RC = XAie_Write32(DevInst, MstrAddr, MstrVal);
 	if(RC != XAIE_OK) {

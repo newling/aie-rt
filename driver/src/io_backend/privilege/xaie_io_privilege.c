@@ -275,7 +275,7 @@ static AieRC _XAie_PrivilegeSetNmuSwitch(XAie_DevInst *DevInst,
 
 	PlIfMod = DevInst->DevProp.DevMod[TileType].PlIfMod;
 	RegAddr = PlIfMod->ShimNocNmuSwitchOff +
-			_XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col);
+			XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col);
 	FldVal = XAie_SetField(FwdEastEnable,
 			PlIfMod->ShimNocNmuSwitch0.Lsb,
 			PlIfMod->ShimNocNmuSwitch0.Mask);
@@ -828,12 +828,12 @@ AieRC XAie_NocDmaPause(XAie_DevInst *DevInst, XAie_LocType *Loc,
 		for(u32 col = 0; col < DevInst->NumCols; col++) {
 			XAie_LocType Loc = XAie_TileLoc(col, 0);
 			RegAddr = NocDma->NocDmaPauseReg->RegOff +
-				_XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col);
+				XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col);
 			XAie_MaskWrite32(DevInst, RegAddr, Mask, FldVal);
 		}
 	} else {
 		RegAddr = NocDma->NocDmaPauseReg->RegOff +
-			_XAie_GetTileAddr(DevInst, Loc->Row, Loc->Col);
+			XAie_GetTileAddr(DevInst, Loc->Row, Loc->Col);
 		XAie_MaskWrite32(DevInst, RegAddr, Mask, FldVal);
 	}
 
@@ -907,12 +907,12 @@ AieRC XAie_UcDmaPause(XAie_DevInst *DevInst, XAie_LocType *Loc,
 		for(u32 col = 0; col < DevInst->NumCols; col++) {
 			XAie_LocType Loc = XAie_TileLoc(col, 0);
 			RegAddr = UcDma->UcDmaPauseReg->RegOff +
-				_XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col);
+				XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col);
 			XAie_MaskWrite32(DevInst, RegAddr, Mask, FldVal);
 		}
 	} else {
 		RegAddr = UcDma->UcDmaPauseReg->RegOff +
-			_XAie_GetTileAddr(DevInst, Loc->Row, Loc->Col);
+			XAie_GetTileAddr(DevInst, Loc->Row, Loc->Col);
 		XAie_MaskWrite32(DevInst, RegAddr, Mask, FldVal);
 	}
 

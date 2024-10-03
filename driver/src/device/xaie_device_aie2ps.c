@@ -98,7 +98,7 @@ AieRC _XAie2PS_SetAxiMMIsolation(XAie_DevInst* DevInst, u8 IsolationFlags)
 			RegVal |= AxiMMTileCtrlMod->AxiMMIsolateEast.Mask;
 		}
 
-		RegAddr = _XAie_GetTileAddr(DevInst, 0U, Col) +
+		RegAddr = XAie_GetTileAddr(DevInst, 0U, Col) +
 			AxiMMTileCtrlMod->TileCtrlAxiMMRegOff;
 		RC = XAie_Write32(DevInst, RegAddr, RegVal);
 	}

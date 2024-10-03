@@ -100,11 +100,6 @@ u8 XAie_GetTileTypefromLoc(XAie_DevInst *DevInst, XAie_LocType Loc)
 	return XAIEGBL_TILE_TYPE_MAX;
 }
 
-u8 _XAie_GetTileTypefromLoc(XAie_DevInst *DevInst, XAie_LocType Loc)
-{
-	return XAie_GetTileTypefromLoc(DevInst, Loc);
-}
-
 /*****************************************************************************/
 /**
 * This function is used to check for module and tiletype combination.
@@ -145,12 +140,6 @@ AieRC XAie_CheckModule(XAie_DevInst *DevInst,
 	return XAIE_OK;
 }
 
-AieRC _XAie_CheckModule(XAie_DevInst *DevInst,
-		XAie_LocType Loc, XAie_ModuleType Module)
-{
-	return XAie_CheckModule(DevInst, Loc, Module);
-}
-
 /*****************************************************************************/
 /**
 * This function is used to get no. of rows for the given tiletype.
@@ -187,11 +176,6 @@ u32 XAie_GetNumRows(XAie_DevInst *DevInst, u8 TileType)
 	}
 
 	return NumRows;
-}
-
-u32 _XAie_GetNumRows(XAie_DevInst *DevInst, u8 TileType)
-{
-	return XAie_GetNumRows(DevInst, TileType);
 }
 
 /*****************************************************************************/
@@ -232,11 +216,6 @@ u32 XAie_GetStartRow(XAie_DevInst *DevInst, u8 TileType)
 	}
 
 	return StartRow;
-}
-
-u32 _XAie_GetStartRow(XAie_DevInst *DevInst, u8 TileType)
-{
-	return XAie_GetStartRow(DevInst, TileType);
 }
 
 /*****************************************************************************/
@@ -419,12 +398,6 @@ AieRC XAie_GetUngatedLocsInPartition(XAie_DevInst *DevInst, u32 *NumTiles,
 	/* Update NumTiles to size equal to ungated tiles in partition */
 	*NumTiles = Index;
 	return XAIE_OK;
-}
-
-AieRC _XAie_GetUngatedLocsInPartition(XAie_DevInst *DevInst, u32 *NumTiles,
-		XAie_LocType *Locs)
-{
-	return XAie_GetUngatedLocsInPartition(DevInst, NumTiles, Locs);
 }
 
 /*****************************************************************************/

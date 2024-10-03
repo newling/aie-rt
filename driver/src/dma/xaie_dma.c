@@ -2314,7 +2314,7 @@ AieRC XAie_DmaSetPadValue(XAie_DevInst *DevInst, XAie_LocType Loc, u8 ChNum,
 		return XAIE_INVALID_CHANNEL_NUM;
 	}
 
-	Addr = _XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col) +
+	Addr = XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col) +
 		DmaMod->PadValueBase + ChNum * 0x4U;
 
 	return XAie_Write32(DevInst, Addr, PadValue);

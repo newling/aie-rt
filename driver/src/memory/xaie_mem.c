@@ -183,11 +183,11 @@ static AieRC _XAie_DataMemoryBlockWrite(XAie_DevInst* DevInst, XAie_LocType Loc,
 
 	/* Absolute 4-byte aligned AXI-MM address to write */
 	DmAddrRoundDown = (u64)(DMBaseAddr + XAIE_MEM_WORD_ROUND_DOWN(Offset)) +
-			    _XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col);
+			    XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col);
 
 	/* Round-up unaligned Addr */
 	DmAddrRoundUp = (u64)(DMBaseAddr + XAIE_MEM_WORD_ROUND_UP(Offset)) +
-			_XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col);
+			XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col);
 
 
 	/* Unaligned start bytes */
@@ -410,7 +410,7 @@ AieRC XAie_SharedDataMemBlockRead(XAie_DevInst *DevInst, XAie_LocType Loc, u32 A
 
 	/* Absolute 4-byte aligned AXI-MM address to write */
 	DmAddrRoundDown = (u64)(MemAddr + XAIE_MEM_WORD_ROUND_DOWN(Addr)) +
-			_XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col);
+			XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col);
 
 	/* Round-up unaligned Addr */
 	DmAddrRoundUp = (u64)(MemAddr + XAIE_MEM_WORD_ROUND_UP(Addr)) +

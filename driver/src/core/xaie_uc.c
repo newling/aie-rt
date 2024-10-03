@@ -64,7 +64,7 @@ static AieRC _XAie_LoadProgMemSection(XAie_DevInst *DevInst, XAie_LocType Loc,
 	}
 
 	Addr = (u64)(UcMod->ProgMemHostOffset + Phdr->p_paddr) +
-		_XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col);
+		XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col);
 
 	/*
 	 * The program memory sections in the elf can end at 32bit
@@ -429,7 +429,7 @@ AieRC _XAie_UcCoreWakeup(XAie_DevInst *DevInst, XAie_LocType Loc,
 	Mask = UcMod->CoreCtrl->CtrlWakeup.Mask;
 	Value = XAie_SetField(1U, UcMod->CoreCtrl->CtrlWakeup.Lsb, Mask);
 	RegAddr = UcMod->CoreCtrl->RegOff +
-		_XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col);
+		XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col);
 	return XAie_Write32(DevInst, RegAddr, Value);
 }
 
@@ -455,7 +455,7 @@ AieRC _XAie_UcCoreSleep(XAie_DevInst *DevInst, XAie_LocType Loc,
 	Mask = UcMod->CoreCtrl->CtrlSleep.Mask;
 	Value = XAie_SetField(1U, UcMod->CoreCtrl->CtrlSleep.Lsb, Mask);
 	RegAddr = UcMod->CoreCtrl->RegOff +
-		_XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col);
+		XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col);
 
 	return XAie_Write32(DevInst, RegAddr, Value);
 }
@@ -484,7 +484,7 @@ AieRC _XAie_UcCoreGetStatus(XAie_DevInst *DevInst, XAie_LocType Loc,
 
 	/* Read core status register */
 	RegAddr = UcMod->CoreSts->RegOff +
-		_XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col);
+		XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col);
 	RC = XAie_Read32(DevInst, RegAddr, &RegVal);
 	if(RC != XAIE_OK) {
 		return RC;
