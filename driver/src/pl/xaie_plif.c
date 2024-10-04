@@ -693,14 +693,6 @@ static AieRC _XAie_ConfigShimNocDeMux(XAie_DevInst *DevInst, XAie_LocType Loc,
 		return XAIE_INVALID_TILE;
 	}
 
-	if((PortNum != XAIE_STREAM_SOUTH_PORT_2) &&
-			(PortNum != XAIE_STREAM_SOUTH_PORT_3) &&
-			(PortNum != XAIE_STREAM_SOUTH_PORT_4) &&
-			(PortNum != XAIE_STREAM_SOUTH_PORT_5)) {
-		XAIE_ERROR("Invalid port number\n");
-		return XAIE_ERR_STREAM_PORT;
-	}
-
 	if(DevInst->DevProp.DevGen == XAIE_DEV_GEN_AIE2PS) {
 		if((PortNum != XAIE_STREAM_SOUTH_PORT_1) &&
 			(PortNum != XAIE_STREAM_SOUTH_PORT_2) &&

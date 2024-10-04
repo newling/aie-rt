@@ -36,6 +36,7 @@
 #define XAIEML_DMA_STEPSIZE_DEFAULT			1U
 #define XAIEML_DMA_ITERWRAP_DEFAULT			1U
 #define XAIEML_DMA_PAD_NUM_DIMS				3U
+#define XAIEML_DMA_PAD_WORDS_MAX			0x3FU /* 6 bits */
 
 #define XAIEML_DMA_STATUS_IDLE				0x0U
 #define XAIEML_DMA_STATUS_CHANNEL_NOT_RUNNING 		0x0U
@@ -218,6 +219,22 @@ static AieRC _XAieMl_DmaMemTileCheckPaddingConfig(XAie_DmaDesc *DmaDesc)
 	XAie_PadDesc *PDesc = DmaDesc->PadDesc;
 
 	for(u8 Dim = 0U; Dim < XAIEML_DMA_PAD_NUM_DIMS; Dim++) {
+		u8 Before = PDesc[Dim].Before;
+		u8 After = PDesc[Dim].After;
+
+		/*
+		 * Check for before and after padding values overflow. The max
+		 * number of words that can be padded for dimension 0, 1 and 2
+		 * are 6 bits, 5 bits and 4 bits wide, respectively.
+		 */
+		if((After > (XAIEML_DMA_PAD_WORDS_MAX >> Dim)) ||
+				(Before > (XAIEML_DMA_PAD_WORDS_MAX >> Dim))) {
+			XAIE_ERROR("Padding for dimension %d must be less "
+					"than %d\n", Dim,
+					XAIEML_DMA_PAD_WORDS_MAX >> Dim);
+			return XAIE_INVALID_DMA_DESC;
+		}
+
 		if(DDesc[Dim].Wrap == 0U) {
 
 			if(PDesc[Dim].After != 0U) {
