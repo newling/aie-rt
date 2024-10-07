@@ -39,6 +39,4 @@ void _XAie_AppendPartitionToList(XAie_DevInst *DevInst, XAie_PartitionList *Part
 AieRC _XAie_DestroyPartitionFdList(XAie_DevInst *DevInst);
 AieRC _XAie_PrintPartitionList(XAie_DevInst *DevInst);
 int _XAie_MatchPartitionList(XAie_DevInst *DevInst, u32 PartitionId);
-u8 _XAie_IsUcModulePresent(XAie_DevInst* DevInst, u8 TileType);
-
 #endif

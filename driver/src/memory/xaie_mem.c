@@ -31,7 +31,6 @@
 #include "xaie_feature_config.h"
 #include "xaie_helper.h"
 #include "xaie_mem.h"
-#include "xaie_helper_internal.h"
 
 #ifdef XAIE_FEATURE_DATAMEM_ENABLE
 
