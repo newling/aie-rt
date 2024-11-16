@@ -18,7 +18,6 @@
 #include "xaie_helper.h"
 #include "xaie_npi.h"
 #include "xaiegbl.h"
-#include "xaie_helper_internal.h"
 
 #ifdef XAIE_FEATURE_PRIVILEGED_ENABLE
 
@@ -80,12 +79,6 @@ static AieRC _XAie_NpiSetProtectedRegField(XAie_DevInst *DevInst,
 		XAie_NpiProtRegReq *Req, u32 *RegVal)
 {
 	(void) DevInst;
-
-	if (_XAie_CheckPrecisionExceeds(_XAieNpiMod.ProtRegEnable.Lsb,
-			_XAie_MaxBitsNeeded(Req->Enable), MAX_VALID_AIE_REG_BIT_INDEX)) {
-		XAIE_ERROR("Check Precision Exceeds Failed\n");
-		return XAIE_ERR;
-	}
 
 	*RegVal = XAie_SetField(Req->Enable, _XAieNpiMod.ProtRegEnable.Lsb,
 			       _XAieNpiMod.ProtRegEnable.Mask);

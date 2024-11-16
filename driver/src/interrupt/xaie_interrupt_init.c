@@ -92,7 +92,7 @@ static AieRC _XAie_IntrCtrlL1Config(XAie_DevInst *DevInst, XAie_LocType Loc,
 	}
 
 	RegAddr = XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col) + RegOffset +
-					(u32)((u8)Switch * (u32)L1IntrMod->SwOff);
+					(u8)Switch * L1IntrMod->SwOff;
 
 	return XAie_Write32(DevInst, RegAddr,(u32)(XAIE_ENABLE << IntrId));
 }
@@ -186,7 +186,7 @@ AieRC XAie_IntrCtrlL1IrqSet(XAie_DevInst *DevInst, XAie_LocType Loc,
 		return XAIE_INVALID_ARGS;
 	}
 
-	RegOffset = L1IntrMod->BaseIrqRegOff +(u32)((u8)Switch * (u32)L1IntrMod->SwOff);
+	RegOffset = L1IntrMod->BaseIrqRegOff +(u32)((u8)Switch * L1IntrMod->SwOff);
 	RegAddr = XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col) + RegOffset;
 
 	return XAie_Write32(DevInst, RegAddr, BroadcastId);
@@ -255,22 +255,8 @@ AieRC XAie_IntrCtrlL1Event(XAie_DevInst *DevInst, XAie_LocType Loc,
 		return XAIE_INVALID_ARGS;
 	}
 
-	RegOffset = L1IntrMod->BaseIrqEventRegOff + (u32)((u8)Switch * (u32)L1IntrMod->SwOff);
-
-	if((IrqEventId * L1IntrMod->IrqEventOff) > UCHAR_MAX) {
-		XAIE_ERROR("Invalid event ID\n");
-		return XAIE_ERR;
-	}
-
+	RegOffset = L1IntrMod->BaseIrqEventRegOff + (u32)((u8)Switch * L1IntrMod->SwOff);
 	EventLsb = IrqEventId * L1IntrMod->IrqEventOff;
-
-	if ((_XAie_CheckPrecisionExceeds(EventLsb,
-			_XAie_MaxBitsNeeded(L1IntrMod->BaseIrqEventMask), MAX_VALID_AIE_REG_BIT_INDEX)) ||
-		(_XAie_CheckPrecisionExceeds(EventLsb,
-			_XAie_MaxBitsNeeded(MappedEvent), MAX_VALID_AIE_REG_BIT_INDEX))){
-		XAIE_ERROR("Check Precision Exceeds Failed\n");
-		return XAIE_ERR;
-	}
 	EventMask = L1IntrMod->BaseIrqEventMask << EventLsb;
 	FldVal = XAie_SetField(MappedEvent, EventLsb, EventMask);
 	RegAddr = XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col) + RegOffset;
@@ -324,19 +310,13 @@ AieRC XAie_IntrCtrlL1BroadcastBlock(XAie_DevInst *DevInst, XAie_LocType Loc,
 		return XAIE_INVALID_ARGS;
 	}
 
-	if ((_XAie_CheckPrecisionExceeds(L1IntrMod->NumBroadcastIds,
-			_XAie_MaxBitsNeeded(XAIE_ENABLE),MAX_VALID_AIE_REG_BIT_INDEX))) {
-		XAIE_ERROR("Check Precision Exceeds Failed\n");
-		return XAIE_ERR;
-	}
-
 	if(ChannelBitMap >= (u32)(XAIE_ENABLE << L1IntrMod->NumBroadcastIds)) {
 		XAIE_ERROR("Invalid channel bitmap\n");
 		return XAIE_INVALID_ARGS;
 	}
 
 	RegOffset = L1IntrMod->BaseBroadcastBlockRegOff +
-						(u32)((u8)Switch * (u32)L1IntrMod->SwOff);
+						(u32)((u8)Switch * L1IntrMod->SwOff);
 	RegAddr = XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col) + RegOffset;
 
 	return XAie_Write32(DevInst, RegAddr, ChannelBitMap);
@@ -390,19 +370,13 @@ AieRC XAie_IntrCtrlL1BroadcastUnblock(XAie_DevInst *DevInst, XAie_LocType Loc,
 		return XAIE_INVALID_ARGS;
 	}
 
-	if ((_XAie_CheckPrecisionExceeds(L1IntrMod->NumBroadcastIds,
-			_XAie_MaxBitsNeeded(XAIE_ENABLE),MAX_VALID_AIE_REG_BIT_INDEX))) {
-		XAIE_ERROR("Check Precision Exceeds Failed\n");
-		return XAIE_ERR;
-	}
-
 	if(ChannelBitMap >= (u32)(XAIE_ENABLE << L1IntrMod->NumBroadcastIds)) {
 		XAIE_ERROR("Invalid channel bitmap\n");
 		return XAIE_INVALID_ARGS;
 	}
 
 	RegOffset = L1IntrMod->BaseBroadcastUnblockRegOff +
-						(u32)((u8)Switch * (u32)L1IntrMod->SwOff);
+						(u32)((u8)Switch * L1IntrMod->SwOff);
 	RegAddr = XAie_GetTileAddr(DevInst, Loc.Row, Loc.Col) + RegOffset;
 
 	return XAie_Write32(DevInst, RegAddr, ChannelBitMap);
@@ -444,12 +418,6 @@ static AieRC _XAie_IntrCtrlL2Config(XAie_DevInst *DevInst, XAie_LocType Loc,
 	}
 
 	L2IntrMod = DevInst->DevProp.DevMod[TileType].L2IntrMod;
-
-	if ((_XAie_CheckPrecisionExceeds(L2IntrMod->NumBroadcastIds,
-			_XAie_MaxBitsNeeded(XAIE_ENABLE),MAX_VALID_AIE_REG_BIT_INDEX))) {
-		XAIE_ERROR("Check Precision Exceeds Failed\n");
-		return XAIE_ERR;
-	}
 
 	if(ChannelBitMap >= (u32)(XAIE_ENABLE << L2IntrMod->NumBroadcastIds)) {
 		XAIE_ERROR("Invalid interrupt bitmap\n");
@@ -526,11 +494,6 @@ static AieRC _XAie_GroupErrorInit(XAie_DevInst *DevInst)
 	u8 MemTileStart, MemTileEnd, AieRowStart, AieRowEnd;
 	XAie_LocType Loc;
 
-	if(((DevInst->MemTileRowStart + DevInst->MemTileNumRows) > UCHAR_MAX) ||
-			((DevInst->AieTileRowStart + DevInst->AieTileNumRows) > UCHAR_MAX )){
-		XAIE_ERROR("Invalid TileEnd instance\n");
-		return XAIE_ERR;
-	}
 	MemTileStart = DevInst->MemTileRowStart;
 	MemTileEnd = DevInst->MemTileRowStart + DevInst->MemTileNumRows;
 	AieRowStart = DevInst->AieTileRowStart;
@@ -657,11 +620,6 @@ static AieRC _XAie_ErrorHandlingEventHaltCore(XAie_DevInst *DevInst)
 	AieRC RC;
 	u8 AieRowStart, AieRowEnd;
 
-
-	if((DevInst->AieTileRowStart + DevInst->AieTileNumRows) > UCHAR_MAX ){
-		XAIE_ERROR("Invalid MemTileEnd instance\n");
-		return XAIE_ERR;
-	}
 	AieRowStart = DevInst->AieTileRowStart;
 	AieRowEnd = DevInst->AieTileRowStart + DevInst->AieTileNumRows;
 
@@ -749,12 +707,6 @@ static AieRC _XAie_ErrorHandlingInitAie(XAie_DevInst *DevInst)
 			(DevInst->IsReady != XAIE_COMPONENT_IS_READY)) {
 		XAIE_ERROR("Invalid device instance\n");
 		return XAIE_INVALID_ARGS;
-	}
-
-	if(((DevInst->MemTileRowStart + DevInst->MemTileNumRows) > UCHAR_MAX) ||
-			((DevInst->AieTileRowStart + DevInst->AieTileNumRows) > UCHAR_MAX )){
-		XAIE_ERROR("Invalid Tile instance\n");
-		return XAIE_ERR;
 	}
 
 	MemTileStart = DevInst->MemTileRowStart;
