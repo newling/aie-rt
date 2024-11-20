@@ -80,6 +80,7 @@ XAIE_AIG_EXPORT AieRC XAie_IsPartitionIdle(XAie_DevInst *DevInst);
 XAIE_AIG_EXPORT AieRC XAie_ClearPartitionContext(XAie_DevInst *DevInst);
 XAIE_AIG_EXPORT AieRC XAie_SetColumnClk(XAie_DevInst *DevInst, u8 Enable);
 XAIE_AIG_EXPORT AieRC XAie_ClearCoreReg(XAie_DevInst *DevInst);
+XAIE_AIG_EXPORT AieRC XAie_PauseMem(XAie_DevInst *DevInst);
 
 /************************** Function Definitions *****************************/
 /*****************************************************************************/

@@ -332,5 +332,25 @@ static inline void _XAie_ClearCoreReg(XAie_DevInst *DevInst)
 {
 	(void)DevInst;
 }
+
+/*****************************************************************************/
+/**
+ *
+ * This API Stops issueing new AXI-MM commands before context switch
+ * Before context switching Needs to stop new AXI-MM transactions. So
+ * that context switch can be done and no data corruption can happen.
+ *
+ * @param       DevInst: Device Instance
+ *
+ * @return      None.
+ *
+ * @note        None.
+ *
+ *****************************************************************************/
+static inline void _XAie_PauseMem(XAie_DevInst *DevInst)
+{
+        (void)DevInst;
+}
+
 #endif		/* end of protection macro */
 /** @} */
