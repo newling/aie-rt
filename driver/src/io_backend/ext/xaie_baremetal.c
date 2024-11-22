@@ -728,6 +728,7 @@ const XAie_Backend BaremetalBackend =
 	.Ops.MemDetach = XAie_BaremetalMemDetach,
 	.Ops.GetTid = XAie_IODummyGetTid,
 	.Ops.SubmitTxn = NULL,
+	.Ops.AddressPatching = NULL,
 };
 
 /** @} */

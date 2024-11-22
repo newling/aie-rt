@@ -654,6 +654,7 @@ const XAie_Backend SimBackend =
 	.Ops.SubmitTxn = NULL,
 	.Ops.GetAttr = XAie_SimIOGetAttr,
 	.Ops.SetAttr = XAie_SimIOSetAttr,
+	.Ops.AddressPatching = NULL,
 };
 
 /** @} */

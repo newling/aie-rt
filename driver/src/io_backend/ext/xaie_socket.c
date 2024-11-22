@@ -757,6 +757,7 @@ const XAie_Backend SocketBackend =
 	.Ops.MemDetach = XAie_SocketMemDetach,
 	.Ops.GetTid = XAie_IODummyGetTid,
 	.Ops.SubmitTxn = NULL,
+	.Ops.AddressPatching = NULL,
 };
 
 /** @} */

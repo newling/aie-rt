@@ -467,6 +467,7 @@ const XAie_Backend IpuBackend =
 	.Ops.MemDetach = XAie_IpuMemDetach,
 	.Ops.GetTid = XAie_IODummyGetTid,
 	.Ops.SubmitTxn = NULL,
+	.Ops.AddressPatching = NULL,
 };
 
 /** @} */

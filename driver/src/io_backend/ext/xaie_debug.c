@@ -545,6 +545,7 @@ const XAie_Backend DebugBackend =
 	.Ops.MemDetach = XAie_DebugMemDetach,
 	.Ops.GetTid = XAie_DebugGetTid,
 	.Ops.SubmitTxn = NULL,
+	.Ops.AddressPatching = NULL,
 };
 
 /** @} */

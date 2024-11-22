@@ -940,6 +940,7 @@ const XAie_Backend ControlCodeBackend =
 	.Ops.MemDetach = XAie_ControlCodeMemDetach,
 	.Ops.GetTid = XAie_IODummyGetTid,
 	.Ops.SubmitTxn = NULL,
+	.Ops.AddressPatching = NULL,
 };
 
 /** @} */

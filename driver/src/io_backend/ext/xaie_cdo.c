@@ -563,6 +563,7 @@ const XAie_Backend CdoBackend =
 	.Ops.MemDetach = XAie_CdoMemDetach,
 	.Ops.GetTid = XAie_IODummyGetTid,
 	.Ops.SubmitTxn = NULL,
+	.Ops.AddressPatching = NULL,
 };
 
 /** @} */
