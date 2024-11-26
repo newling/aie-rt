@@ -2525,7 +2525,7 @@ AieRC XAie_AddressPatching(XAie_DevInst *DevInst, u8 Arg_Offset, u8 Num_BDs)
 	if (Backend->Ops.AddressPatching != NULL) {
 		return Backend->Ops.AddressPatching((void *)DevInst->IOInst, Arg_Offset, Num_BDs);
 	} else {
-		return XAIE_NOT_SUPPORTED;
+		return XAIE_FEATURE_NOT_SUPPORTED;
 	}
 }
 
