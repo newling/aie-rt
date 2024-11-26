@@ -109,12 +109,14 @@ install(
   LIBRARY  DESTINATION ${CMAKE_INSTALL_LIBDIR}
   )
 
-install(
-  EXPORT ${PROJECT_NAME}-targets
-  NAMESPACE ${PROJECT_NAME}::
-  COMPONENT runtime
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
-  )
+if (NOT DEFINED NPU)
+  install(
+    EXPORT ${PROJECT_NAME}-targets
+    NAMESPACE ${PROJECT_NAME}::
+    COMPONENT runtime
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
+    )
+endif()
 
 # Support Find Package
 include(CMakePackageConfigHelpers)
@@ -129,7 +131,9 @@ write_basic_package_version_file(
   VERSION ${PROJECT_VERSION} COMPATIBILITY AnyNewerVersion
   )
 
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake
+if (NOT DEFINED NPU)
+  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake
               ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake
         COMPONENT runtime DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
-  )
+    )
+endif()
