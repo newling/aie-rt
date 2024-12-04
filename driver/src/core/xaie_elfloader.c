@@ -30,6 +30,7 @@
 ******************************************************************************/
 /***************************** Include Files *********************************/
 #include <errno.h>
+#include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -225,6 +226,10 @@ static AieRC _XAie_LoadProgMemSection(XAie_DevInst *DevInst, XAie_LocType Loc,
 	const XAie_CoreMod *CoreMod;
 
 	CoreMod = DevInst->DevProp.DevMod[XAIEGBL_TILE_TYPE_AIETILE].CoreMod;
+
+  XAIE_ERROR("[FINDING PROGRAM MEMORY SIZE] Program memory size : %d\n", Phdr->p_memsz);
+  XAIE_ERROR("[FINDING PROGRAM MEMORY SIZE] Maximum device PM   : %d\n", CoreMod->ProgMemSize);
+  // When we see the 'Overflow of program memory' message while compiling in iree-amd-aie, this is where it is coming from. 
 
 	/* Write to Program Memory */
 	if((Phdr->p_paddr + Phdr->p_memsz) > CoreMod->ProgMemSize) {
@@ -429,9 +434,29 @@ static AieRC _XAie_LoadElfFromMem(XAie_DevInst *DevInst, XAie_LocType Loc,
 	for(u32 phnum = 0U; phnum < Ehdr->e_phnum; phnum++) {
 		Phdr = (Elf32_Phdr*) (ElfMem + sizeof(*Ehdr) +
 				phnum * sizeof(*Phdr));
+
+
+
 		_XAie_PrintProgSectHdr(Phdr);
 		if(Phdr->p_type == (u32)PT_LOAD) {
+
 			SectionPtr = ElfMem + Phdr->p_offset;
+
+    // At this point, ElfMem is just the elf file we see in iree-amd-aie loaded 
+    // into memory. Phdr (see above) is the program header, and is just a 
+    // pointer with a fixed offset from ElfMem.
+    u32 major_offset = sizeof(*Ehdr) + phnum * sizeof(*Phdr);
+
+    // The size of program memory is a pointer within Phdr. It has offset
+    // with Phdr given by:
+   u32 minor_offset = offsetof(Elf32_Phdr, p_memsz);
+
+   // So the total offset is the following. Printing it we see it is 72 bytes. 
+   // So if we just read the integer at byte 72 of the elf file, we should get
+   // the size of the program memory.
+   u32 total_offset = major_offset + minor_offset;
+   XAIE_ERROR("[FINDING PROGRAM MEMORY SIZE] Offset to program memory size in header: %d\n", total_offset);
+
 			RC = _XAie_WriteProgramSection(DevInst, Loc, SectionPtr,
 					Phdr, Sections);
 			if(RC != XAIE_OK) {
@@ -612,9 +637,11 @@ AieRC XAie_LoadElfPartial(XAie_DevInst *DevInst, XAie_LocType Loc,
 		return XAIE_INVALID_ELF;
 	}
 
+
 	ElfSz = (u64)ftell(Fd);
 	rewind(Fd);
 	XAIE_DBG("Elf size is %ld bytes\n", ElfSz);
+	XAIE_ERROR("[FINDING PROGRAM MEMORY SIZE] The elf size is %ld bytes\n", ElfSz);
 
 	/* Read entire elf file into memory */
 	ElfMem = (unsigned char*) malloc(ElfSz);
